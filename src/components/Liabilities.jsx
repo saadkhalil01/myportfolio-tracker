@@ -23,34 +23,40 @@ export default function Liabilities({ liabilities, onChange }) {
         </button>
       </div>
 
-      <ul className="item-list liabilities-list">
-        {liabilities.map((l) => (
-          <li key={l.id}>
-            <input
-              className="cell-input name liability-name"
-              value={l.name}
-              onChange={(e) => update(l.id, 'name', e.target.value)}
-              placeholder="Name"
-            />
-            <MoneyInput
-              value={l.amount}
-              onChange={(amount) => update(l.id, 'amount', amount)}
-              aria-label={`${l.name || 'Liability'} amount`}
-            />
-            <button
-              className="btn-icon"
-              title="Remove"
-              onClick={() => onChange(liabilities.filter((x) => x.id !== l.id))}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul>
+      {liabilities.length === 0 ? (
+        <p className="empty-note">No liabilities yet — use + Add to create one.</p>
+      ) : (
+        <>
+          <ul className="item-list liabilities-list">
+            {liabilities.map((l) => (
+              <li key={l.id}>
+                <input
+                  className="cell-input name liability-name"
+                  value={l.name}
+                  onChange={(e) => update(l.id, 'name', e.target.value)}
+                  placeholder="Name"
+                />
+                <MoneyInput
+                  value={l.amount}
+                  onChange={(amount) => update(l.id, 'amount', amount)}
+                  aria-label={`${l.name || 'Liability'} amount`}
+                />
+                <button
+                  className="btn-icon"
+                  title="Remove"
+                  onClick={() => onChange(liabilities.filter((x) => x.id !== l.id))}
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
 
-      <div className="list-total liabilities-total">
-        <span className="list-total-value negative">{fmt(total)}</span>
-      </div>
+          <div className="list-total liabilities-total">
+            <span className="list-total-value negative">{fmt(total)}</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }

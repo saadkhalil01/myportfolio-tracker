@@ -1,31 +1,14 @@
-const STORAGE_KEY = 'myportfolio-data-v1';
+const STORAGE_KEY_BASE = 'myportfolio-data-v1';
+
+export function storageKeyForUser(userId) {
+  return userId ? `${STORAGE_KEY_BASE}:${userId}` : STORAGE_KEY_BASE;
+}
 
 export const DEFAULT_DATA = {
-  categories: [
-    { id: 'emergency', name: 'Emergency Funds', invested: 182810, currentValue: 203952 },
-    { id: 'stocks', name: 'Stocks', invested: 508719, currentValue: 515910 },
-    { id: 'pension', name: 'Pension Fund', invested: 25000, currentValue: 31062 },
-    { id: 'funds-equity', name: 'Funds (Equity)', invested: 0, currentValue: 0 },
-    { id: 'crypto', name: 'Crypto', invested: 0, currentValue: 0 },
-    { id: 'real-estate', name: 'Real Estate', invested: 0, currentValue: 0 },
-    { id: 'bonds', name: 'Bonds', invested: 0, currentValue: 0 },
-  ],
-  liabilities: [
-    { id: 'home-loan', name: 'Home Loan', amount: 1525000 },
-    { id: 'phuppo', name: 'Phuppo', amount: 575000 },
-    { id: 'mohsan', name: 'Mohsan', amount: 400000 },
-    { id: 'hassan', name: 'Hassan', amount: 200000 },
-    { id: 'aiza', name: 'Aiza', amount: 200000 },
-    { id: 'tayyab', name: 'Tayyab', amount: 50000 },
-    { id: 'ahnaf', name: 'Ahnaf', amount: 50000 },
-    { id: 'soban', name: 'Soban', amount: 50000 },
-  ],
-  targets: [
-    { id: 'car', name: 'Car', year: 2030, targetAmount: 0 },
-    { id: 'house', name: 'House', year: 2035, targetAmount: 0 },
-    { id: 'qurbani', name: 'Qurbani', year: 2027, targetAmount: 0 },
-  ],
-  dividendReinvested: 9975,
+  categories: [],
+  liabilities: [],
+  targets: [],
+  dividendReinvested: 0,
   startDate: '2023-12-23',
   chartStyles: {
     allocation: 'donut',
@@ -34,20 +17,11 @@ export const DEFAULT_DATA = {
   },
   portfolios: [
     {
-      id: 'monster-dividend',
-      name: 'Monster Dividend',
-      broker: 'Broker 1',
-      strategy: 'dividend',
-      goal: 'Sole goal: collect dividends and reinvest them',
-      cash: 0,
-      holdings: [],
-    },
-    {
-      id: 'beast-growth',
-      name: 'Beast Growth',
-      broker: 'Broker 2',
-      strategy: 'growth',
-      goal: 'Growth-focused — dividends not required',
+      id: 'default',
+      name: 'Default',
+      broker: '',
+      strategy: 'mixed',
+      goal: '',
       cash: 0,
       holdings: [],
     },
@@ -63,10 +37,65 @@ export function todayISO() {
   return `${y}-${m}-${day}`;
 }
 
+/** Fresh empty template — all amounts 0, start date = today. */
+export function createEmptyData() {
+  const data = structuredClone(DEFAULT_DATA);
+  data.startDate = todayISO();
+  data.valuationHistory = [];
+  return syncValuationHistory(data);
+}
+
 export function categoryTotals(categories = []) {
   const invested = categories.reduce((s, c) => s + Number(c.invested || 0), 0);
   const valuation = categories.reduce((s, c) => s + Number(c.currentValue || 0), 0);
   return { invested, valuation };
+}
+
+export function portfolioAssets(portfolios = []) {
+  return portfolios.reduce((sum, p) => {
+    const holdings = (p.holdings || []).reduce(
+      (s, h) => s + Number(h.avgBuy || 0) * Number(h.shares || 0),
+      0
+    );
+    return sum + holdings + Number(p.cash || 0);
+  }, 0);
+}
+
+export function portfolioInvested(portfolios = []) {
+  return portfolios.reduce(
+    (sum, p) =>
+      sum +
+      (p.holdings || []).reduce((s, h) => s + Number(h.avgBuy || 0) * Number(h.shares || 0), 0),
+    0
+  );
+}
+
+/** Categories that duplicate the Stocks tab (same thing — don't count twice). */
+export function isStocksCategory(c) {
+  return c?.id === 'stocks' || /^stocks?$/i.test(String(c?.name || '').trim());
+}
+
+/**
+ * Assets = non-stock investment categories + Stocks tab (holdings + cash as one).
+ * Stocks tab is the single source for stocks — not mixed with a separate Stocks category.
+ */
+export function assetTotals(data = {}) {
+  const categories = data.categories || [];
+  const portfolios = data.portfolios || [];
+
+  const otherCategories = categories.filter((c) => !isStocksCategory(c));
+  const otherInvested = otherCategories.reduce((s, c) => s + Number(c.invested || 0), 0);
+  const otherValue = otherCategories.reduce((s, c) => s + Number(c.currentValue || 0), 0);
+
+  const stocksValue = portfolioAssets(portfolios);
+  const stocksInvested = portfolioInvested(portfolios);
+
+  return {
+    invested: otherInvested + stocksInvested,
+    valuation: otherValue + stocksValue,
+    categoriesValue: otherValue,
+    stocksValue,
+  };
 }
 
 export function normalizeHistory(points = []) {
@@ -84,7 +113,7 @@ export function normalizeHistory(points = []) {
 
 /** Keep history seeded from start date and always refresh today's snapshot. */
 export function syncValuationHistory(data) {
-  const { invested, valuation } = categoryTotals(data.categories);
+  const { invested, valuation } = assetTotals(data);
   const start = data.startDate || todayISO();
   const today = todayISO();
   let history = normalizeHistory(data.valuationHistory || []);
@@ -146,17 +175,18 @@ function normalizePortfolio(p) {
   };
 }
 
-function migrateData(parsed) {
+export function hydrateData(parsed) {
+  const source = parsed || {};
   const base = structuredClone(DEFAULT_DATA);
-  const merged = { ...base, ...parsed };
+  const merged = { ...base, ...source };
 
-  let targets = Array.isArray(parsed.targets) ? parsed.targets.map(normalizeTarget) : base.targets;
+  let targets = Array.isArray(source.targets) ? source.targets.map(normalizeTarget) : base.targets;
 
   // Fold legacy "goals" (e.g. Qurbani) into targets if present
-  if (Array.isArray(parsed.goals) && parsed.goals.length) {
+  if (Array.isArray(source.goals) && source.goals.length) {
     const existingIds = new Set(targets.map((t) => t.id));
     const existingNames = new Set(targets.map((t) => t.name.toLowerCase()));
-    for (const g of parsed.goals) {
+    for (const g of source.goals) {
       const name = g.name || 'Goal';
       const yearMatch = String(name).match(/\b(20\d{2})\b/);
       const id = g.id || Math.random().toString(36).slice(2, 10);
@@ -176,27 +206,33 @@ function migrateData(parsed) {
   merged.targets = targets;
   merged.chartStyles = {
     ...base.chartStyles,
-    ...(parsed.chartStyles || {}),
+    ...(source.chartStyles || {}),
   };
-  merged.portfolios = Array.isArray(parsed.portfolios)
-    ? parsed.portfolios.map(normalizePortfolio)
+  merged.portfolios = Array.isArray(source.portfolios)
+    ? source.portfolios.map(normalizePortfolio)
     : base.portfolios;
-  merged.valuationHistory = normalizeHistory(parsed.valuationHistory || []);
+  merged.valuationHistory = normalizeHistory(source.valuationHistory || []);
   return syncValuationHistory(merged);
 }
 
-export function loadData() {
+export function loadData(userId) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return syncValuationHistory(structuredClone(DEFAULT_DATA));
-    return migrateData(JSON.parse(raw));
+    const raw = localStorage.getItem(storageKeyForUser(userId));
+    if (!raw) return createEmptyData();
+    return hydrateData(JSON.parse(raw));
   } catch {
-    return syncValuationHistory(structuredClone(DEFAULT_DATA));
+    return createEmptyData();
   }
 }
 
-export function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+export function saveData(data, userId) {
+  localStorage.setItem(storageKeyForUser(userId), JSON.stringify(data));
+}
+
+/** Wipe stored data and return a fresh empty snapshot (all amounts 0). */
+export function resetData(userId) {
+  localStorage.removeItem(storageKeyForUser(userId));
+  return createEmptyData();
 }
 
 export function exportData(data) {

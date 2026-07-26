@@ -243,18 +243,27 @@ export const DEFAULT_CHART_STYLES = {
 export default function ChartsPanel({ categories, totals, liabilitiesTotal, chartStyles, onChangeStyles }) {
   const styles = { ...DEFAULT_CHART_STYLES, ...chartStyles };
 
-  const allocation = categories
-    .filter((c) => c.currentValue > 0)
-    .map((c) => ({ name: c.name, value: c.currentValue }));
+  // Stocks tab is one bucket (holdings + cash). Skip any "Stocks" category so it isn't double-counted.
+  const allocation = [
+    ...categories
+      .filter(
+        (c) =>
+          c.currentValue > 0 &&
+          c.id !== 'stocks' &&
+          !/^stocks?$/i.test(String(c.name || '').trim())
+      )
+      .map((c) => ({ name: c.name, value: c.currentValue })),
+    ...(totals.stocksValue > 0 ? [{ name: 'Stocks', value: totals.stocksValue }] : []),
+  ];
 
   const netData = [
-    { name: 'Investments', value: totals.currentValue, color: '#0d7a4f' },
+    { name: 'Assets', value: totals.currentValue, color: '#0d7a4f' },
     { name: 'Liabilities', value: liabilitiesTotal, color: '#b42318' },
   ];
 
   const comparison = [
     { name: 'Invested', value: totals.invested, color: '#64748b' },
-    { name: 'Current value', value: totals.currentValue, color: '#1a56db' },
+    { name: 'Assets', value: totals.currentValue, color: '#1a56db' },
   ];
 
   const setStyle = (key, value) => {

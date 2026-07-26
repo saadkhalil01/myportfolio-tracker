@@ -12,7 +12,7 @@ export default function SummaryCards({ data, totals, onChange }) {
         <span className="stat-value">{fmt(invested)}</span>
       </div>
       <div className="card stat">
-        <span className="stat-label">Current Valuation</span>
+        <span className="stat-label">Total assets</span>
         <span className="stat-value">{fmt(currentValue)}</span>
       </div>
       <div className="card stat">
@@ -29,7 +29,12 @@ export default function SummaryCards({ data, totals, onChange }) {
           className="stat-input"
           type="number"
           value={data.dividendReinvested}
-          onChange={(e) => onChange({ ...data, dividendReinvested: Number(e.target.value) })}
+          onChange={(e) =>
+            onChange((prev) => ({
+              ...prev,
+              dividendReinvested: Number(e.target.value),
+            }))
+          }
         />
         <span className="stat-sub">Yield on cost {yieldOnCost.toFixed(2)}%</span>
       </div>
@@ -39,7 +44,12 @@ export default function SummaryCards({ data, totals, onChange }) {
           className="stat-input"
           type="date"
           value={data.startDate}
-          onChange={(e) => onChange({ ...data, startDate: e.target.value })}
+          onChange={(e) =>
+            onChange((prev) => ({
+              ...prev,
+              startDate: e.target.value,
+            }))
+          }
         />
       </div>
     </section>
