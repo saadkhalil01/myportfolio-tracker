@@ -39,6 +39,7 @@ export const DEFAULT_DATA = {
       broker: 'Broker 1',
       strategy: 'dividend',
       goal: 'Sole goal: collect dividends and reinvest them',
+      cash: 0,
       holdings: [],
     },
     {
@@ -47,6 +48,7 @@ export const DEFAULT_DATA = {
       broker: 'Broker 2',
       strategy: 'growth',
       goal: 'Growth-focused — dividends not required',
+      cash: 0,
       holdings: [],
     },
   ],
@@ -139,6 +141,7 @@ function normalizePortfolio(p) {
     broker: p.broker || '',
     strategy: p.strategy || 'mixed',
     goal: p.goal || '',
+    cash: Number(p.cash ?? 0),
     holdings: Array.isArray(p.holdings) ? p.holdings.map(normalizeHolding) : [],
   };
 }

@@ -1,4 +1,5 @@
 import { fmt, uid } from '../storage.js';
+import MoneyInput from './MoneyInput.jsx';
 
 const STRATEGIES = [
   { id: 'dividend', label: 'Dividend' },
@@ -16,8 +17,16 @@ function holdingCost(h) {
   return Number(h.avgBuy || 0) * Number(h.shares || 0);
 }
 
-function portfolioCost(p) {
+function portfolioStockCost(p) {
   return (p.holdings || []).reduce((s, h) => s + holdingCost(h), 0);
+}
+
+function portfolioCash(p) {
+  return Number(p.cash || 0);
+}
+
+function portfolioTotal(p) {
+  return portfolioStockCost(p) + portfolioCash(p);
 }
 
 function portfolioShares(p) {
@@ -27,7 +36,9 @@ function portfolioShares(p) {
 export default function StocksBreakdown({ portfolios, onChange }) {
   const totalPortfolios = portfolios.length;
   const totalHoldings = portfolios.reduce((s, p) => s + (p.holdings?.length || 0), 0);
-  const totalCost = portfolios.reduce((s, p) => s + portfolioCost(p), 0);
+  const totalStockCost = portfolios.reduce((s, p) => s + portfolioStockCost(p), 0);
+  const totalCash = portfolios.reduce((s, p) => s + portfolioCash(p), 0);
+  const totalValue = totalStockCost + totalCash;
   const totalShares = portfolios.reduce((s, p) => s + portfolioShares(p), 0);
 
   const updatePortfolio = (id, patch) => {
@@ -83,6 +94,7 @@ export default function StocksBreakdown({ portfolios, onChange }) {
         broker: '',
         strategy: 'mixed',
         goal: '',
+        cash: 0,
         holdings: [],
       },
     ]);
@@ -99,7 +111,7 @@ export default function StocksBreakdown({ portfolios, onChange }) {
         <div>
           <h2>Insights · Stocks breakdown</h2>
           <p className="card-note">
-            Track each broker portfolio separately — holdings, average buy, and share count.
+            Track each broker portfolio — holdings, cash, average buy, and share count.
           </p>
         </div>
         <button className="btn btn-ghost" onClick={addPortfolio}>
@@ -117,18 +129,23 @@ export default function StocksBreakdown({ portfolios, onChange }) {
           <span className="stat-value">{totalHoldings}</span>
         </div>
         <div className="insight-stat">
-          <span className="stat-label">Total shares</span>
-          <span className="stat-value">{fmtPrice(totalShares)}</span>
+          <span className="stat-label">Cash</span>
+          <span className="stat-value">{fmt(totalCash)}</span>
         </div>
         <div className="insight-stat">
-          <span className="stat-label">Total cost basis</span>
-          <span className="stat-value">{fmt(totalCost)}</span>
+          <span className="stat-label">Total value</span>
+          <span className="stat-value">{fmt(totalValue)}</span>
+          <span className="stat-sub">
+            Stocks {fmt(totalStockCost)} · {fmtPrice(totalShares)} shares
+          </span>
         </div>
       </div>
 
       <div className="portfolio-grid">
         {portfolios.map((p) => {
-          const cost = portfolioCost(p);
+          const stockCost = portfolioStockCost(p);
+          const cash = portfolioCash(p);
+          const total = portfolioTotal(p);
           const shares = portfolioShares(p);
           return (
             <article key={p.id} className="portfolio-card">
@@ -173,12 +190,27 @@ export default function StocksBreakdown({ portfolios, onChange }) {
                   onChange={(e) => updatePortfolio(p.id, { goal: e.target.value })}
                   placeholder="Goal / strategy note"
                 />
+
+                <div className="portfolio-cash-row">
+                  <label className="cash-label" htmlFor={`cash-${p.id}`}>
+                    Cash
+                  </label>
+                  <MoneyInput
+                    id={`cash-${p.id}`}
+                    value={cash}
+                    onChange={(value) => updatePortfolio(p.id, { cash: value })}
+                    aria-label={`${p.name || 'Portfolio'} cash`}
+                  />
+                </div>
+
                 <div className="portfolio-summary">
                   <span>
                     {p.holdings.length} stock{p.holdings.length === 1 ? '' : 's'}
                   </span>
                   <span>{fmtPrice(shares)} shares</span>
-                  <span>Cost {fmt(cost)}</span>
+                  <span>Stocks {fmt(stockCost)}</span>
+                  <span>Cash {fmt(cash)}</span>
+                  <span>Total {fmt(total)}</span>
                 </div>
               </div>
 
