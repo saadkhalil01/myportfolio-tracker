@@ -1,4 +1,5 @@
 import { fmt, uid } from '../storage.js';
+import MoneyInput from './MoneyInput.jsx';
 
 export default function Liabilities({ liabilities, onChange }) {
   const total = liabilities.reduce((s, l) => s + Number(l.amount || 0), 0);
@@ -8,9 +9,12 @@ export default function Liabilities({ liabilities, onChange }) {
   };
 
   return (
-    <div className="card">
+    <div className="card liabilities-card">
       <div className="card-header">
-        <h2>Liabilities</h2>
+        <div>
+          <h2>Liabilities</h2>
+          <p className="card-note">People and loans you owe — amounts in PKR.</p>
+        </div>
         <button
           className="btn btn-ghost"
           onClick={() => onChange([...liabilities, { id: uid(), name: 'New liability', amount: 0 }])}
@@ -18,19 +22,20 @@ export default function Liabilities({ liabilities, onChange }) {
           + Add
         </button>
       </div>
-      <ul className="item-list">
+
+      <ul className="item-list liabilities-list">
         {liabilities.map((l) => (
           <li key={l.id}>
             <input
-              className="cell-input name"
+              className="cell-input name liability-name"
               value={l.name}
               onChange={(e) => update(l.id, 'name', e.target.value)}
+              placeholder="Name"
             />
-            <input
-              className="cell-input num"
-              type="number"
+            <MoneyInput
               value={l.amount}
-              onChange={(e) => update(l.id, 'amount', Number(e.target.value))}
+              onChange={(amount) => update(l.id, 'amount', amount)}
+              aria-label={`${l.name || 'Liability'} amount`}
             />
             <button
               className="btn-icon"
@@ -42,9 +47,9 @@ export default function Liabilities({ liabilities, onChange }) {
           </li>
         ))}
       </ul>
-      <div className="list-total">
-        <span>Total</span>
-        <span className="negative">{fmt(total)}</span>
+
+      <div className="list-total liabilities-total">
+        <span className="list-total-value negative">{fmt(total)}</span>
       </div>
     </div>
   );

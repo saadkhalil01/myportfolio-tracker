@@ -1,87 +1,121 @@
-import { uid } from '../storage.js';
+import { fmt, uid } from '../storage.js';
 
-export default function Targets({ targets, goals, onChangeTargets, onChangeGoals }) {
-  const updateTarget = (id, field, value) => {
-    onChangeTargets(targets.map((t) => (t.id === id ? { ...t, [field]: value } : t)));
+function progressPct(targetAmount, available) {
+  const target = Number(targetAmount || 0);
+  if (target <= 0) return 0;
+  return Math.min(100, (Number(available || 0) / target) * 100);
+}
+
+export default function Targets({ targets, availableFunds, onChange }) {
+  const update = (id, field, value) => {
+    onChange(targets.map((t) => (t.id === id ? { ...t, [field]: value } : t)));
   };
 
-  const updateGoal = (id, field, value) => {
-    onChangeGoals(goals.map((g) => (g.id === id ? { ...g, [field]: value } : g)));
+  const addRow = () => {
+    onChange([
+      ...targets,
+      {
+        id: uid(),
+        name: 'New target',
+        year: new Date().getFullYear() + 1,
+        targetAmount: 0,
+      },
+    ]);
   };
 
   return (
     <div className="card">
       <div className="card-header">
-        <h2>Targets & Goals</h2>
-        <button
-          className="btn btn-ghost"
-          onClick={() =>
-            onChangeTargets([
-              ...targets,
-              { id: uid(), name: 'New target', year: new Date().getFullYear() + 1 },
-            ])
-          }
-        >
+        <div>
+          <h2>Targets</h2>
+          <p className="card-note">
+            Able to buy uses savings & investments excluding pension ({fmt(availableFunds)})
+          </p>
+        </div>
+        <button className="btn btn-ghost" onClick={addRow}>
           + Add
         </button>
       </div>
-      <ul className="item-list">
-        {targets.map((t) => (
-          <li key={t.id}>
-            <input
-              className="cell-input name"
-              value={t.name}
-              onChange={(e) => updateTarget(t.id, 'name', e.target.value)}
-            />
-            <input
-              className="cell-input num year"
-              type="number"
-              value={t.year}
-              onChange={(e) => updateTarget(t.id, 'year', Number(e.target.value))}
-            />
-            <button
-              className="btn-icon"
-              title="Remove"
-              onClick={() => onChangeTargets(targets.filter((x) => x.id !== t.id))}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul>
-      <h3 className="subheading">Savings goals</h3>
-      <ul className="item-list">
-        {goals.map((g) => (
-          <li key={g.id}>
-            <input
-              className="cell-input name"
-              value={g.name}
-              onChange={(e) => updateGoal(g.id, 'name', e.target.value)}
-            />
-            <input
-              className="cell-input num"
-              type="number"
-              value={g.amount}
-              onChange={(e) => updateGoal(g.id, 'amount', Number(e.target.value))}
-            />
-            <button
-              className="btn-icon"
-              title="Remove"
-              onClick={() => onChangeGoals(goals.filter((x) => x.id !== g.id))}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-        <li>
-          <button
-            className="btn btn-ghost small"
-            onClick={() => onChangeGoals([...goals, { id: uid(), name: 'New goal', amount: 0 }])}
-          >
-            + Add goal
-          </button>
-        </li>
-      </ul>
+      <div className="table-scroll">
+        <table className="data-table targets-table">
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th className="num">Year</th>
+              <th className="num">Target amount</th>
+              <th className="center">Able to buy</th>
+              <th className="num">Progress</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {targets.map((t) => {
+              const target = Number(t.targetAmount || 0);
+              const ableToBuy = target > 0 && availableFunds >= target;
+              const pct = progressPct(target, availableFunds);
+              const remaining = Math.max(0, target - availableFunds);
+              return (
+                <tr key={t.id}>
+                  <td>
+                    <input
+                      className="cell-input name"
+                      value={t.name}
+                      onChange={(e) => update(t.id, 'name', e.target.value)}
+                    />
+                  </td>
+                  <td className="num">
+                    <input
+                      className="cell-input num year"
+                      type="number"
+                      value={t.year}
+                      onChange={(e) => update(t.id, 'year', Number(e.target.value))}
+                    />
+                  </td>
+                  <td className="num">
+                    <input
+                      className="cell-input num"
+                      type="number"
+                      value={t.targetAmount}
+                      onChange={(e) => update(t.id, 'targetAmount', Number(e.target.value))}
+                    />
+                  </td>
+                  <td className="center able-cell">
+                    {ableToBuy ? (
+                      <span className="able-tick" title="Able to buy" aria-label="Able to buy">
+                        ✓
+                      </span>
+                    ) : (
+                      <span className="able-empty" aria-label="Not yet">
+                        —
+                      </span>
+                    )}
+                  </td>
+                  <td className="num progress-cell">
+                    <div className="progress-meta">
+                      <span className={pct >= 100 ? 'positive' : ''}>{pct.toFixed(0)}%</span>
+                      {remaining > 0 && (
+                        <span className="progress-remaining">{fmt(remaining)} left</span>
+                      )}
+                    </div>
+                    <div className="progress-track" aria-hidden="true">
+                      <div className="progress-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                  </td>
+                  <td className="row-actions">
+                    <button
+                      className="btn-icon"
+                      title="Remove"
+                      onClick={() => onChange(targets.filter((x) => x.id !== t.id))}
+                    >
+                      ✕
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
