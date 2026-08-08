@@ -13,6 +13,9 @@ const PALETTE = [
   '#64748b',
 ];
 
+const CASH_COLOR = '#0e7490';
+const CASH_LABEL = 'Cash';
+
 const DEFAULT_STYLES = {
   holdings: 'donut',
   portfolios: 'bar',
@@ -30,33 +33,44 @@ function holdingValue(h, quotes) {
   return q.price * Number(h.shares || 0);
 }
 
-function portfolioMarketValue(p, quotes) {
-  const stocks = (p.holdings || []).reduce((s, h) => s + holdingValue(h, quotes), 0);
-  return stocks + Number(p.cash || 0);
+function portfolioIdleCash(p) {
+  return Number(p.cash || 0);
 }
 
-/** Collapse many small holdings into an Other bucket for readable charts. */
+function portfolioStockValue(p, quotes) {
+  return (p.holdings || []).reduce((s, h) => s + holdingValue(h, quotes), 0);
+}
+
+function portfolioMarketValue(p, quotes) {
+  return portfolioStockValue(p, quotes) + portfolioIdleCash(p);
+}
+
+/** Collapse many small stock slices; keep Cash as its own slice. */
 function topWithOther(items, limit = 8) {
-  if (items.length <= limit) return items;
-  const top = items.slice(0, limit - 1);
-  const rest = items.slice(limit - 1);
-  const otherValue = rest.reduce((s, d) => s + Number(d.value || 0), 0);
-  if (otherValue <= 0) return top;
-  return [
-    ...top,
-    {
-      name: 'Other',
-      value: otherValue,
-      color: '#94a3b8',
-    },
-  ];
+  const cash = items.find((d) => d.name === CASH_LABEL);
+  const stocks = items.filter((d) => d.name !== CASH_LABEL);
+  const budget = cash ? limit - 1 : limit;
+
+  let trimmed = stocks;
+  if (stocks.length > budget) {
+    const top = stocks.slice(0, budget - 1);
+    const rest = stocks.slice(budget - 1);
+    const otherValue = rest.reduce((s, d) => s + Number(d.value || 0), 0);
+    trimmed =
+      otherValue > 0
+        ? [...top, { name: 'Other', value: otherValue, color: '#94a3b8' }]
+        : top;
+  }
+
+  return cash ? [...trimmed, cash] : trimmed;
 }
 
 export default function StocksCharts({ portfolios, quotes = {} }) {
   const [styles, setStyles] = useState(DEFAULT_STYLES);
 
-  const { holdings, portfoliosData, pl, costVsMarket } = useMemo(() => {
+  const { holdings, portfoliosData, pl, costVsMarket, stocksVsCash } = useMemo(() => {
     const bySym = new Map();
+    const cash = portfolios.reduce((s, p) => s + portfolioIdleCash(p), 0);
 
     for (const p of portfolios) {
       for (const h of p.holdings || []) {
@@ -80,6 +94,10 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         value: d.value,
         color: PALETTE[i % PALETTE.length],
       }));
+
+    if (cash > 0) {
+      sortedHoldings.push({ name: CASH_LABEL, value: cash, color: CASH_COLOR });
+    }
 
     const portfoliosData = portfolios
       .map((p, i) => ({
@@ -105,11 +123,16 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
       totalCost += d.cost;
       totalMarket += d.value;
     }
-    const cash = portfolios.reduce((s, p) => s + Number(p.cash || 0), 0);
+
+    // Cost includes idle cash (capital sitting in brokerage); market = stocks + cash
     const costVsMarket = [
-      { name: 'Cost', value: totalCost, color: '#64748b' },
-      { name: 'Market', value: totalMarket, color: '#1a56db' },
-      ...(cash > 0 ? [{ name: 'Cash', value: cash, color: '#0e7490' }] : []),
+      { name: 'Cost + cash', value: totalCost + cash, color: '#64748b' },
+      { name: 'Market + cash', value: totalMarket + cash, color: '#1a56db' },
+    ].filter((d) => d.value > 0);
+
+    const stocksVsCash = [
+      { name: 'Stocks', value: totalMarket, color: '#1a56db' },
+      ...(cash > 0 ? [{ name: CASH_LABEL, value: cash, color: CASH_COLOR }] : []),
     ].filter((d) => d.value > 0);
 
     return {
@@ -117,11 +140,16 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
       portfoliosData,
       pl,
       costVsMarket,
+      stocksVsCash,
     };
   }, [portfolios, quotes]);
 
   const hasAny =
-    holdings.length > 0 || portfoliosData.length > 0 || pl.length > 0 || costVsMarket.length > 0;
+    holdings.length > 0 ||
+    portfoliosData.length > 0 ||
+    pl.length > 0 ||
+    costVsMarket.length > 0 ||
+    stocksVsCash.length > 0;
 
   if (!hasAny) return null;
 
@@ -129,9 +157,10 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
     setStyles((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Prefer cost vs market when only one portfolio (portfolio chart is redundant)
+  // Multi-portfolio: compare portfolios (each includes idle cash).
+  // Single portfolio: stocks vs idle cash allocation.
   const showPortfolios = portfoliosData.length > 1;
-  const third = showPortfolios
+  const middle = showPortfolios
     ? {
         title: 'By portfolio',
         chartId: 'stock-portfolios',
@@ -140,11 +169,11 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         defaultStyle: styles.portfolios,
       }
     : {
-        title: 'Cost vs market',
-        chartId: 'stock-cost-market',
-        data: costVsMarket,
+        title: 'Stocks vs cash',
+        chartId: 'stock-vs-cash',
+        data: stocksVsCash.length ? stocksVsCash : costVsMarket,
         styleKey: 'portfolios',
-        defaultStyle: styles.portfolios === 'donut' ? 'bar' : styles.portfolios,
+        defaultStyle: styles.portfolios,
       };
 
   return (
@@ -158,11 +187,11 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         className="nested-chart-card"
       />
       <ChartCard
-        title={third.title}
-        chartId={third.chartId}
-        data={third.data}
-        style={third.defaultStyle}
-        onStyleChange={(v) => setStyle(third.styleKey, v)}
+        title={middle.title}
+        chartId={middle.chartId}
+        data={middle.data}
+        style={middle.defaultStyle}
+        onStyleChange={(v) => setStyle(middle.styleKey, v)}
         className="nested-chart-card"
       />
       <ChartCard
