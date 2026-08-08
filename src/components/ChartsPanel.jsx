@@ -15,6 +15,7 @@ import {
   Area,
   CartesianGrid,
 } from 'recharts';
+import { categoryChartColor } from '../categoryColors.js';
 import { fmt } from '../storage.js';
 
 const CHART_STYLES = [
@@ -52,29 +53,97 @@ const axisTick = {
   fontFamily: 'Google Sans, system-ui, sans-serif',
 };
 
+function fmtPct(n) {
+  return `${Number(n || 0).toFixed(1)}%`;
+}
+
+function withPercents(data) {
+  const hasNeg = data.some((d) => Number(d.value || 0) < 0);
+  const total = data.reduce((s, d) => {
+    const v = Number(d.value || 0);
+    return s + (hasNeg ? Math.abs(v) : v);
+  }, 0);
+  return data.map((d, i) => ({
+    ...d,
+    color: d.color || PALETTE[i % PALETTE.length],
+    pct: total > 0 ? (Math.abs(Number(d.value || 0)) / total) * 100 : 0,
+  }));
+}
+
 function ChartTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   return (
     <div style={{ ...tooltipStyle, padding: '8px 12px', fontSize: 12 }}>
-      {payload.map((p) => (
-        <div key={p.name || p.dataKey}>
-          <span style={{ color: '#6b778c' }}>{p.name || p.payload?.name}</span>
-          <span style={{ marginLeft: 8, fontWeight: 600 }}>{fmt(p.value)}</span>
-        </div>
-      ))}
+      {payload.map((p) => {
+        const name = p.name || p.payload?.name;
+        const pct = p.payload?.pct;
+        return (
+          <div key={name || p.dataKey}>
+            <span style={{ color: '#6b778c' }}>{name}</span>
+            <span style={{ marginLeft: 8, fontWeight: 600 }}>{fmt(p.value)}</span>
+            {pct != null && (
+              <span style={{ marginLeft: 6, color: '#6b778c' }}>({fmtPct(pct)})</span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-function withColors(data) {
-  return data.map((d, i) => ({
-    ...d,
-    color: d.color || PALETTE[i % PALETTE.length],
-  }));
+function legendFormatter(value, entry) {
+  const pct = entry?.payload?.pct;
+  return pct != null ? `${value} · ${fmtPct(pct)}` : value;
+}
+
+function coverageInfo(assets, liabilities) {
+  if (liabilities <= 0) {
+    return {
+      coverage: assets > 0 ? 2 : 0,
+      markerPct: assets > 0 ? 100 : 0,
+      status: 'Safe',
+      statusClass: 'safe',
+      detail: 'No liabilities',
+    };
+  }
+  const coverage = assets / liabilities;
+  // Map 0 → 2x coverage onto the strip (2x+ = full safe end)
+  const markerPct = Math.min(100, Math.max(0, (coverage / 2) * 100));
+  let status = 'Safe';
+  let statusClass = 'safe';
+  if (coverage < 0.5) {
+    status = 'Danger';
+    statusClass = 'danger';
+  } else if (coverage < 0.85) {
+    status = 'Caution';
+    statusClass = 'caution';
+  } else if (coverage < 1) {
+    status = 'Tight';
+    statusClass = 'caution';
+  }
+  return {
+    coverage,
+    markerPct,
+    status,
+    statusClass,
+    detail: `${(coverage * 100).toFixed(0)}% covered`,
+  };
+}
+
+function CoverageScale({ assets, liabilities }) {
+  const info = coverageInfo(assets, liabilities);
+  return (
+    <div className="coverage-scale">
+      <div className="coverage-track" aria-label={`${info.status} · ${info.detail}`}>
+        <div className="coverage-gradient" />
+        <div className="coverage-marker" style={{ left: `${info.markerPct}%` }} />
+      </div>
+    </div>
+  );
 }
 
 function FlexibleChart({ data, style, chartId }) {
-  const colored = withColors(data);
+  const colored = withPercents(data);
   const empty = colored.length === 0 || colored.every((d) => !d.value);
   const gradientId = `areaFill-${chartId}`;
 
@@ -101,7 +170,7 @@ function FlexibleChart({ data, style, chartId }) {
             ))}
           </Pie>
           <Tooltip content={<ChartTooltip />} />
-          <Legend iconType="circle" iconSize={8} />
+          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
         </PieChart>
       </ResponsiveContainer>
     );
@@ -132,6 +201,7 @@ function FlexibleChart({ data, style, chartId }) {
             width={88}
           />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
+          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
           <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22} name="Value">
             {colored.map((entry) => (
               <Cell key={entry.name} fill={entry.color} />
@@ -150,6 +220,7 @@ function FlexibleChart({ data, style, chartId }) {
           <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
           <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
           <Tooltip content={<ChartTooltip />} />
+          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
           <Line
             type="monotone"
             dataKey="value"
@@ -178,6 +249,7 @@ function FlexibleChart({ data, style, chartId }) {
           <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
           <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
           <Tooltip content={<ChartTooltip />} />
+          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
           <Area
             type="monotone"
             dataKey="value"
@@ -199,6 +271,7 @@ function FlexibleChart({ data, style, chartId }) {
         <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
         <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
+        <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
         <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48} name="Value">
           {colored.map((entry) => (
             <Cell key={entry.name} fill={entry.color} />
@@ -209,9 +282,9 @@ function FlexibleChart({ data, style, chartId }) {
   );
 }
 
-function ChartCard({ title, chartId, data, style, onStyleChange }) {
+export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '' }) {
   return (
-    <div className="card chart-card">
+    <div className={`card chart-card ${className}`.trim()}>
       <div className="card-header chart-header">
         <h2>{title}</h2>
         <label className="chart-style">
@@ -230,6 +303,7 @@ function ChartCard({ title, chartId, data, style, onStyleChange }) {
         </label>
       </div>
       <FlexibleChart data={data} style={style} chartId={chartId} />
+      {footer}
     </div>
   );
 }
@@ -243,17 +317,20 @@ export const DEFAULT_CHART_STYLES = {
 export default function ChartsPanel({ categories, totals, liabilitiesTotal, chartStyles, onChangeStyles }) {
   const styles = { ...DEFAULT_CHART_STYLES, ...chartStyles };
 
-  // Stocks tab is one bucket (holdings + cash). Skip any "Stocks" category so it isn't double-counted.
+  const hasStocksCategory = categories.some(
+    (c) => c.id === 'stocks' || /^stocks?$/i.test(String(c.name || '').trim())
+  );
   const allocation = [
     ...categories
-      .filter(
-        (c) =>
-          c.currentValue > 0 &&
-          c.id !== 'stocks' &&
-          !/^stocks?$/i.test(String(c.name || '').trim())
-      )
-      .map((c) => ({ name: c.name, value: c.currentValue })),
-    ...(totals.stocksValue > 0 ? [{ name: 'Stocks', value: totals.stocksValue }] : []),
+      .filter((c) => Number(c.currentValue || 0) > 0)
+      .map((c) => ({
+        name: c.name,
+        value: Number(c.currentValue || 0),
+        color: categoryChartColor(c),
+      })),
+    ...(!hasStocksCategory && totals.stocksValue > 0
+      ? [{ name: 'Stocks', value: totals.stocksValue, color: categoryChartColor({ name: 'Stocks' }) }]
+      : []),
   ];
 
   const netData = [
@@ -280,11 +357,14 @@ export default function ChartsPanel({ categories, totals, liabilitiesTotal, char
         onStyleChange={(v) => setStyle('allocation', v)}
       />
       <ChartCard
-        title="Investments vs liabilities"
+        title="Investments vs Liabilities"
         chartId="net"
         data={netData}
         style={styles.net}
         onStyleChange={(v) => setStyle('net', v)}
+        footer={
+          <CoverageScale assets={totals.currentValue} liabilities={liabilitiesTotal} />
+        }
       />
       <ChartCard
         title="Invested vs valuation"

@@ -1,22 +1,22 @@
-import { fmt, fmtPct } from '../storage.js';
+import { fmt, fmtPct, numberInputValue } from '../storage.js';
 
 export default function SummaryCards({ data, totals, onChange }) {
   const { invested, currentValue, profit, changePct } = totals;
-  const yieldOnCost = invested > 0 ? (data.dividendReinvested / invested) * 100 : 0;
   const gainClass = profit >= 0 ? 'positive' : 'negative';
+  const yieldOnCost = invested > 0 ? (data.dividendReinvested / invested) * 100 : 0;
 
   return (
     <section className="summary-grid">
       <div className="card stat">
-        <span className="stat-label">Overall Investment</span>
+        <span className="stat-label">Total invested</span>
         <span className="stat-value">{fmt(invested)}</span>
       </div>
       <div className="card stat">
-        <span className="stat-label">Total assets</span>
+        <span className="stat-label">Current value</span>
         <span className="stat-value">{fmt(currentValue)}</span>
       </div>
       <div className="card stat">
-        <span className="stat-label">Profit / Loss</span>
+        <span className="stat-label">Change</span>
         <span className={`stat-value ${gainClass}`}>
           {profit >= 0 ? '+' : ''}
           {fmt(profit)}
@@ -32,7 +32,7 @@ export default function SummaryCards({ data, totals, onChange }) {
           onChange={(e) =>
             onChange((prev) => ({
               ...prev,
-              dividendReinvested: Number(e.target.value),
+              dividendReinvested: numberInputValue(e.target.value),
             }))
           }
         />

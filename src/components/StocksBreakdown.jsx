@@ -1,5 +1,9 @@
-import { fmt, uid } from '../storage.js';
+import { useMemo, useState } from 'react';
+import { fmt, uid, numberInputValue } from '../storage.js';
+import { normalizeSymbol } from '../psxQuotes.js';
 import MoneyInput from './MoneyInput.jsx';
+import StockLogo from './StockLogo.jsx';
+import StocksCharts from './StocksCharts.jsx';
 
 const STRATEGIES = [
   { id: 'dividend', label: 'Dividend' },
@@ -7,10 +11,20 @@ const STRATEGIES = [
   { id: 'mixed', label: 'Mixed' },
 ];
 
-const fmtPrice = (n) =>
+const SORT_OPTIONS = [
+  { id: 'name', label: 'Name' },
+  { id: 'shares', label: 'Shares' },
+  { id: 'cost', label: 'Cost (amount)' },
+  { id: 'value', label: 'Market value' },
+  { id: 'pl', label: 'P/L' },
+  { id: 'price', label: 'Price' },
+  { id: 'avgBuy', label: 'Avg buy' },
+];
+
+const fmtPrice = (n, digits = 2) =>
   Number(n || 0).toLocaleString('en-PK', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: digits,
   });
 
 function holdingCost(h) {
@@ -25,21 +39,114 @@ function portfolioCash(p) {
   return Number(p.cash || 0);
 }
 
-function portfolioTotal(p) {
-  return portfolioStockCost(p) + portfolioCash(p);
-}
-
 function portfolioShares(p) {
   return (p.holdings || []).reduce((s, h) => s + Number(h.shares || 0), 0);
 }
 
-export default function StocksBreakdown({ portfolios, onChange }) {
+function holdingMetrics(h, quotes) {
+  const sym = normalizeSymbol(h.name);
+  const q = quotes[sym];
+  const price = q?.price ?? null;
+  const shares = Number(h.shares || 0);
+  const cost = holdingCost(h);
+  const value = price != null ? price * shares : cost;
+  const pl = value - cost;
+  return { sym, q, price, shares, cost, value, pl };
+}
+
+function sortHoldings(holdings, sortBy, sortDir, quotes) {
+  const dir = sortDir === 'asc' ? 1 : -1;
+  return [...holdings].sort((a, b) => {
+    const ma = holdingMetrics(a, quotes);
+    const mb = holdingMetrics(b, quotes);
+    let cmp = 0;
+    switch (sortBy) {
+      case 'shares':
+        cmp = ma.shares - mb.shares;
+        break;
+      case 'cost':
+        cmp = ma.cost - mb.cost;
+        break;
+      case 'value':
+        cmp = ma.value - mb.value;
+        break;
+      case 'pl':
+        cmp = ma.pl - mb.pl;
+        break;
+      case 'price':
+        cmp = (ma.price ?? -Infinity) - (mb.price ?? -Infinity);
+        break;
+      case 'avgBuy':
+        cmp = Number(a.avgBuy || 0) - Number(b.avgBuy || 0);
+        break;
+      case 'name':
+      default:
+        cmp = String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+          sensitivity: 'base',
+        });
+        break;
+    }
+    if (cmp === 0) {
+      return String(a.name || '').localeCompare(String(b.name || ''), undefined, {
+        sensitivity: 'base',
+      });
+    }
+    return cmp * dir;
+  });
+}
+
+export default function StocksBreakdown({
+  portfolios,
+  onChange,
+  quotes = {},
+  quoteStatus = 'idle',
+  quoteUpdatedAt = null,
+  onRefreshQuotes,
+}) {
+  const [sortBy, setSortBy] = useState('value');
+  const [sortDir, setSortDir] = useState('desc');
+
+  const symbols = useMemo(
+    () =>
+      [
+        ...new Set(
+          portfolios
+            .flatMap((p) => p.holdings || [])
+            .map((h) => normalizeSymbol(h.name))
+            .filter((s) => s.length >= 2)
+        ),
+      ],
+    [portfolios]
+  );
+
+  const marketStats = useMemo(() => {
+    let marketValue = 0;
+    let costWithPrice = 0;
+    let priced = 0;
+    for (const p of portfolios) {
+      for (const h of p.holdings || []) {
+        const q = quotes[normalizeSymbol(h.name)];
+        if (!q?.price) continue;
+        const shares = Number(h.shares || 0);
+        marketValue += q.price * shares;
+        costWithPrice += holdingCost(h);
+        priced += 1;
+      }
+    }
+    return {
+      marketValue,
+      unrealized: marketValue - costWithPrice,
+      priced,
+    };
+  }, [portfolios, quotes]);
+
   const totalPortfolios = portfolios.length;
   const totalHoldings = portfolios.reduce((s, p) => s + (p.holdings?.length || 0), 0);
   const totalStockCost = portfolios.reduce((s, p) => s + portfolioStockCost(p), 0);
   const totalCash = portfolios.reduce((s, p) => s + portfolioCash(p), 0);
-  const totalValue = totalStockCost + totalCash;
   const totalShares = portfolios.reduce((s, p) => s + portfolioShares(p), 0);
+  const totalDisplayValue =
+    marketStats.priced > 0 ? marketStats.marketValue + totalCash : totalStockCost + totalCash;
 
   const updatePortfolio = (id, patch) => {
     onChange(portfolios.map((p) => (p.id === id ? { ...p, ...patch } : p)));
@@ -65,10 +172,7 @@ export default function StocksBreakdown({ portfolios, onChange }) {
         p.id === portfolioId
           ? {
               ...p,
-              holdings: [
-                ...p.holdings,
-                { id: uid(), name: '', avgBuy: 0, shares: 0 },
-              ],
+              holdings: [...p.holdings, { id: uid(), name: '', avgBuy: 0, shares: 0 }],
             }
           : p
       )
@@ -105,18 +209,65 @@ export default function StocksBreakdown({ portfolios, onChange }) {
     onChange(portfolios.filter((p) => p.id !== id));
   };
 
+  const quoteLabel =
+    quoteStatus === 'loading'
+      ? 'Updating prices…'
+      : quoteStatus === 'error'
+        ? 'Prices unavailable'
+        : quoteUpdatedAt
+          ? `PSX prices · ${new Date(quoteUpdatedAt).toLocaleTimeString('en-GB', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}`
+          : 'PSX prices';
+
   return (
     <section className="card insights-card">
       <div className="card-header">
         <div>
           <h2>Insights · Stocks breakdown</h2>
           <p className="card-note">
-            Track each broker portfolio — holdings, cash, average buy, and share count.
+            Track holdings with live PSX prices (delayed / last traded). Market total feeds
+            Investments → Stock current value.
           </p>
         </div>
-        <button className="btn btn-ghost" onClick={addPortfolio}>
-          + Add portfolio
-        </button>
+        <div className="card-header-actions">
+          <span className={`quote-status quote-${quoteStatus}`}>{quoteLabel}</span>
+          <label className="sort-control">
+            <span className="sort-label">Sort</span>
+            <select
+              className="cell-input sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              aria-label="Sort holdings by"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="btn btn-ghost sort-dir-btn"
+              title={sortDir === 'asc' ? 'Ascending' : 'Descending'}
+              onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
+            >
+              {sortDir === 'asc' ? '↑ Asc' : '↓ Desc'}
+            </button>
+          </label>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={quoteStatus === 'loading' || !symbols.length}
+            onClick={() => onRefreshQuotes?.()}
+          >
+            Refresh prices
+          </button>
+          <button type="button" className="btn btn-ghost" onClick={addPortfolio}>
+            + Add portfolio
+          </button>
+        </div>
       </div>
 
       <div className="insight-stats">
@@ -133,47 +284,70 @@ export default function StocksBreakdown({ portfolios, onChange }) {
           <span className="stat-value">{fmt(totalCash)}</span>
         </div>
         <div className="insight-stat">
-          <span className="stat-label">Total value</span>
-          <span className="stat-value">{fmt(totalValue)}</span>
-          <span className="stat-sub">
-            Stocks {fmt(totalStockCost)} · {fmtPrice(totalShares)} shares
+          <span className="stat-label">Market value</span>
+          <span className="stat-value">{fmt(totalDisplayValue)}</span>
+          <span
+            className={`stat-sub ${
+              marketStats.priced ? (marketStats.unrealized >= 0 ? 'positive' : 'negative') : ''
+            }`}
+          >
+            {marketStats.priced
+              ? `Unrealized ${marketStats.unrealized >= 0 ? '+' : ''}${fmt(marketStats.unrealized)} · ${fmtPrice(totalShares)} shares`
+              : `Cost ${fmt(totalStockCost)} · ${fmtPrice(totalShares)} shares`}
           </span>
         </div>
       </div>
+
+      <StocksCharts portfolios={portfolios} quotes={quotes} />
 
       <div className="portfolio-grid">
         {portfolios.map((p) => {
           const stockCost = portfolioStockCost(p);
           const cash = portfolioCash(p);
-          const total = portfolioTotal(p);
           const shares = portfolioShares(p);
+
+          let marketStocks = 0;
+          let hasMarket = false;
+          for (const h of p.holdings || []) {
+            const q = quotes[normalizeSymbol(h.name)];
+            if (q?.price != null) {
+              marketStocks += q.price * Number(h.shares || 0);
+              hasMarket = true;
+            }
+          }
+          const portfolioMarket = (hasMarket ? marketStocks : stockCost) + cash;
+          const portfolioGain = hasMarket ? marketStocks - stockCost : 0;
+
           return (
             <article key={p.id} className="portfolio-card">
-              <div className="portfolio-head">
+              <div className="portfolio-card-head">
                 <div className="portfolio-title-row">
                   <input
-                    className="cell-input portfolio-name"
+                    className="cell-input name portfolio-name"
                     value={p.name}
                     onChange={(e) => updatePortfolio(p.id, { name: e.target.value })}
                     placeholder="Portfolio name"
                   />
-                  <button
-                    className="btn-icon always-visible"
-                    title="Remove portfolio"
-                    onClick={() => removePortfolio(p.id)}
-                  >
-                    ✕
-                  </button>
+                  {portfolios.length > 1 && (
+                    <button
+                      type="button"
+                      className="btn-icon always-visible"
+                      title="Remove portfolio"
+                      onClick={() => removePortfolio(p.id)}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
-                <div className="portfolio-meta">
+                <div className="portfolio-meta-row">
                   <input
                     className="cell-input"
                     value={p.broker}
                     onChange={(e) => updatePortfolio(p.id, { broker: e.target.value })}
-                    placeholder="Broker account"
+                    placeholder="Broker"
                   />
                   <select
-                    className="strategy-select"
+                    className="cell-input"
                     value={p.strategy}
                     onChange={(e) => updatePortfolio(p.id, { strategy: e.target.value })}
                   >
@@ -185,12 +359,11 @@ export default function StocksBreakdown({ portfolios, onChange }) {
                   </select>
                 </div>
                 <input
-                  className="cell-input portfolio-goal"
+                  className="cell-input"
                   value={p.goal}
                   onChange={(e) => updatePortfolio(p.id, { goal: e.target.value })}
-                  placeholder="Goal / strategy note"
+                  placeholder="Goal / notes"
                 />
-
                 <div className="portfolio-cash-row">
                   <label className="cash-label" htmlFor={`cash-${p.id}`}>
                     Cash
@@ -202,89 +375,143 @@ export default function StocksBreakdown({ portfolios, onChange }) {
                     aria-label={`${p.name || 'Portfolio'} cash`}
                   />
                 </div>
-
-                <div className="portfolio-summary">
-                  <span>
-                    {p.holdings.length} stock{p.holdings.length === 1 ? '' : 's'}
-                  </span>
-                  <span>{fmtPrice(shares)} shares</span>
-                  <span>Stocks {fmt(stockCost)}</span>
+                <div className="portfolio-summary-line">
+                  <span>Value {fmt(portfolioMarket)}</span>
+                  <span>Cost {fmt(stockCost)}</span>
                   <span>Cash {fmt(cash)}</span>
-                  <span>Total {fmt(total)}</span>
+                  <span>Shares {fmtPrice(shares, 0)}</span>
+                  {hasMarket && (
+                    <span className={portfolioGain >= 0 ? 'positive' : 'negative'}>
+                      P/L {portfolioGain >= 0 ? '+' : ''}
+                      {fmt(portfolioGain)}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className="table-scroll">
+              <div className="table-wrap">
                 <table className="data-table holdings-table">
                   <thead>
                     <tr>
                       <th>Stock</th>
+                      <th className="num">Price</th>
                       <th className="num">Avg buy</th>
-                      <th className="num">No. of shares</th>
+                      <th className="num">Shares</th>
                       <th className="num">Cost</th>
+                      <th className="num">Value</th>
+                      <th className="num">P/L</th>
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {p.holdings.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="empty-row">
+                        <td colSpan={8} className="empty-row">
                           No stocks yet — add your holdings below.
                         </td>
                       </tr>
                     ) : (
-                      p.holdings.map((h) => (
-                        <tr key={h.id}>
-                          <td>
-                            <input
-                              className="cell-input name"
-                              value={h.name}
-                              onChange={(e) =>
-                                updateHolding(p.id, h.id, 'name', e.target.value)
-                              }
-                              placeholder="e.g. ENGRO"
-                            />
-                          </td>
-                          <td className="num">
-                            <input
-                              className="cell-input num"
-                              type="number"
-                              step="any"
-                              value={h.avgBuy}
-                              onChange={(e) =>
-                                updateHolding(p.id, h.id, 'avgBuy', Number(e.target.value))
-                              }
-                            />
-                          </td>
-                          <td className="num">
-                            <input
-                              className="cell-input num"
-                              type="number"
-                              step="any"
-                              value={h.shares}
-                              onChange={(e) =>
-                                updateHolding(p.id, h.id, 'shares', Number(e.target.value))
-                              }
-                            />
-                          </td>
-                          <td className="num">{fmt(holdingCost(h))}</td>
-                          <td className="row-actions">
-                            <button
-                              className="btn-icon"
-                              title="Remove stock"
-                              onClick={() => removeHolding(p.id, h.id)}
+                      sortHoldings(p.holdings, sortBy, sortDir, quotes).map((h) => {
+                        const { q, price, shares: sharesN, cost, value, pl } = holdingMetrics(
+                          h,
+                          quotes
+                        );
+                        const dayClass =
+                          q?.change > 0 ? 'positive' : q?.change < 0 ? 'negative' : '';
+
+                        return (
+                          <tr key={h.id}>
+                            <td>
+                              <div className="stock-name-cell">
+                                <StockLogo name={h.name} />
+                                <input
+                                  className="cell-input name"
+                                  value={h.name}
+                                  onChange={(e) =>
+                                    updateHolding(p.id, h.id, 'name', e.target.value)
+                                  }
+                                  placeholder="e.g. EFERT"
+                                />
+                              </div>
+                            </td>
+                            <td className="num price-cell">
+                              {price != null ? (
+                                <>
+                                  <span className="price-main">{fmtPrice(price)}</span>
+                                  {q.change != null && (
+                                    <span className={`price-chg ${dayClass}`}>
+                                      {q.change >= 0 ? '+' : ''}
+                                      {fmtPrice(q.change)}
+                                      {q.changePct != null
+                                        ? ` (${q.changePct >= 0 ? '+' : ''}${fmtPrice(q.changePct)}%)`
+                                        : ''}
+                                    </span>
+                                  )}
+                                </>
+                              ) : quoteStatus === 'loading' ? (
+                                <span className="muted">…</span>
+                              ) : (
+                                <span className="muted">—</span>
+                              )}
+                            </td>
+                            <td className="num">
+                              <input
+                                className="cell-input num"
+                                type="number"
+                                step="any"
+                                value={h.avgBuy}
+                                onChange={(e) =>
+                                  updateHolding(p.id, h.id, 'avgBuy', numberInputValue(e.target.value))
+                                }
+                              />
+                            </td>
+                            <td className="num">
+                              <input
+                                className="cell-input num"
+                                type="number"
+                                step="any"
+                                value={h.shares}
+                                onChange={(e) =>
+                                  updateHolding(p.id, h.id, 'shares', numberInputValue(e.target.value))
+                                }
+                              />
+                            </td>
+                            <td className="num">{fmt(cost)}</td>
+                            <td className="num">
+                              {price != null ? fmt(value) : '—'}
+                            </td>
+                            <td
+                              className={`num ${
+                                price == null ? '' : pl >= 0 ? 'positive' : 'negative'
+                              }`}
                             >
-                              ✕
-                            </button>
-                          </td>
-                        </tr>
-                      ))
+                              {price == null
+                                ? '—'
+                                : `${pl >= 0 ? '+' : ''}${fmt(pl)}`}
+                            </td>
+                            <td className="row-actions">
+                              <button
+                                type="button"
+                                className="btn-icon"
+                                title="Remove stock"
+                                onClick={() => removeHolding(p.id, h.id)}
+                              >
+                                ✕
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
               </div>
 
-              <button className="btn btn-ghost small add-holding" onClick={() => addHolding(p.id)}>
+              <button
+                type="button"
+                className="btn btn-ghost small add-holding"
+                onClick={() => addHolding(p.id)}
+              >
                 + Add stock
               </button>
             </article>

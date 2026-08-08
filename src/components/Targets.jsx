@@ -1,4 +1,4 @@
-import { fmt, uid } from '../storage.js';
+import { fmt, uid, numberInputValue } from '../storage.js';
 
 function progressPct(targetAmount, available) {
   const target = Number(targetAmount || 0);
@@ -71,7 +71,7 @@ export default function Targets({ targets, availableFunds, onChange }) {
                         className="cell-input num year"
                         type="number"
                         value={t.year}
-                        onChange={(e) => update(t.id, 'year', Number(e.target.value))}
+                        onChange={(e) => update(t.id, 'year', numberInputValue(e.target.value))}
                       />
                     </td>
                     <td className="num">
@@ -79,7 +79,7 @@ export default function Targets({ targets, availableFunds, onChange }) {
                         className="cell-input num"
                         type="number"
                         value={t.targetAmount}
-                        onChange={(e) => update(t.id, 'targetAmount', Number(e.target.value))}
+                        onChange={(e) => update(t.id, 'targetAmount', numberInputValue(e.target.value))}
                       />
                     </td>
                     <td className="center able-cell">

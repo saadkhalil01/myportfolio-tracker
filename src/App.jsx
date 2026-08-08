@@ -11,8 +11,15 @@ import {
   storageKeyForUser,
   assetTotals,
   portfolioAssets,
+  growthStats,
+  pickRicherData,
+  hasStocksInsights,
+  syncStocksCategoryFromInsights,
+  isGoldCategory,
+  syncGoldCategoriesFromRate,
 } from './storage.js';
 import { fetchCloudPortfolio, saveCloudPortfolio } from './cloud.js';
+import { usePsxQuotes, normalizeSymbol } from './psxQuotes.js';
 import { useAuth } from './AuthContext.jsx';
 import SummaryCards from './components/SummaryCards.jsx';
 import CategoriesTable from './components/CategoriesTable.jsx';
@@ -22,6 +29,9 @@ import Targets from './components/Targets.jsx';
 import StocksBreakdown from './components/StocksBreakdown.jsx';
 import GrowthChart from './components/GrowthChart.jsx';
 import AuthBar from './components/AuthBar.jsx';
+import SyncStatus from './components/SyncStatus.jsx';
+import PortfolioHealth from './components/PortfolioHealth.jsx';
+import { useGoldRate } from './goldRate.js';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview' },
@@ -90,22 +100,28 @@ export default function App() {
         const cloud = await fetchCloudPortfolio(userId);
         if (epoch !== epochRef.current) return;
 
-        if (cloud) {
-          saveData(cloud, userId);
-          setData(cloud);
-        } else {
-          const hasUserLocal = Boolean(localStorage.getItem(storageKeyForUser(userId)));
-          const local = hasUserLocal ? loadData(userId) : loadData(null);
-          saveData(local, userId);
-          await saveCloudPortfolio(userId, local);
-          if (epoch !== epochRef.current) return;
-          setData(local);
-        }
+        // Guest + account local often have cash/holdings that a stale cloud row dropped.
+        // Always pick the richest snapshot so totals don't flash 716 → 706 on sign-in.
+        const guest = localStorage.getItem(storageKeyForUser(null)) ? loadData(null) : null;
+        const userLocal = localStorage.getItem(storageKeyForUser(userId))
+          ? loadData(userId)
+          : null;
+        const merged = pickRicherData(cloud, userLocal, guest);
+
+        saveData(merged, userId);
+        setData(merged);
+        await saveCloudPortfolio(userId, merged);
+        if (epoch !== epochRef.current) return;
+
         cloudReady.current = true;
         setSyncState('synced');
       } catch (err) {
         if (epoch !== epochRef.current) return;
-        setData(loadData(userId));
+        const guest = localStorage.getItem(storageKeyForUser(null)) ? loadData(null) : null;
+        const userLocal = localStorage.getItem(storageKeyForUser(userId))
+          ? loadData(userId)
+          : null;
+        setData(pickRicherData(userLocal, guest));
         cloudReady.current = true;
         setSyncState('error');
         setSyncError(err.message || 'Cloud sync failed');
@@ -156,8 +172,50 @@ export default function App() {
     return () => clearTimeout(t);
   }, [toast]);
 
+  const [quoteRefreshKey, setQuoteRefreshKey] = useState(0);
+  const stockSymbols = useMemo(
+    () =>
+      (data.portfolios || []).flatMap((p) =>
+        (p.holdings || []).map((h) => normalizeSymbol(h.name)).filter((s) => s.length >= 2)
+      ),
+    [data.portfolios]
+  );
+  const { quotes, status: quoteStatus, updatedAt: quoteUpdatedAt } = usePsxQuotes(stockSymbols, {
+    refreshKey: quoteRefreshKey,
+  });
+  const stocksLinked = hasStocksInsights(data.portfolios);
+  const hasGold = data.categories.some(isGoldCategory);
+  const {
+    perTola24kPkr: goldRatePerTola,
+    perGram24kPkr: goldRatePerGram,
+    status: goldRateStatus,
+    updatedAt: goldRateUpdatedAt,
+  } = useGoldRate(hasGold);
+
+  // Investments "Stock" current value ← Stocks insights market total
+  useEffect(() => {
+    if (!stocksLinked) return;
+    setData((prev) => syncStocksCategoryFromInsights(prev, quotes));
+  }, [data.portfolios, quotes, stocksLinked]);
+
+  // Re-sync whenever Gold rows appear/change so new categories get 1 tola + live value
+  const goldSyncKey = data.categories
+    .filter(isGoldCategory)
+    .map((c) => `${c.id}:${c.goldQuantity ?? ''}:${c.goldUnit ?? ''}`)
+    .join('|');
+
+  useEffect(() => {
+    if (goldRateStatus !== 'ready') return;
+    setData((prev) =>
+      syncGoldCategoriesFromRate(prev, {
+        perTola24kPkr: goldRatePerTola,
+        perGram24kPkr: goldRatePerGram,
+      })
+    );
+  }, [goldRatePerTola, goldRatePerGram, goldRateStatus, goldSyncKey]);
+
   const totals = useMemo(() => {
-    const assets = assetTotals(data);
+    const assets = assetTotals(data, quotes);
     const profit = assets.valuation - assets.invested;
     const changePct = assets.invested > 0 ? (profit / assets.invested) * 100 : 0;
     return {
@@ -167,16 +225,17 @@ export default function App() {
       changePct,
       categoriesValue: assets.categoriesValue,
       stocksValue: assets.stocksValue,
+      stocksFromInsights: assets.stocksFromInsights,
     };
-  }, [data.categories, data.portfolios]);
+  }, [data.categories, data.portfolios, quotes]);
 
   useEffect(() => {
     if (skipHistorySync.current) {
       skipHistorySync.current = false;
       return;
     }
-    setData((prev) => syncValuationHistory(prev));
-  }, [totals.currentValue, totals.invested, data.startDate]);
+    setData((prev) => syncValuationHistory(prev, quotes));
+  }, [totals.currentValue, totals.invested, data.startDate, quotes]);
 
   const liabilitiesTotal = useMemo(
     () => data.liabilities.reduce((s, l) => s + Number(l.amount || 0), 0),
@@ -184,7 +243,7 @@ export default function App() {
   );
 
   const availableFunds = useMemo(() => {
-    // Non-stock categories (ex pension) + Stocks tab total (holdings + cash, once)
+    // Non-stock categories (ex pension) + Stocks insights total (once)
     const categoriesExPension = data.categories
       .filter(
         (c) =>
@@ -194,11 +253,17 @@ export default function App() {
           !/^stocks?$/i.test(String(c.name || '').trim())
       )
       .reduce((s, c) => s + Number(c.currentValue || 0), 0);
+    if (stocksLinked) return categoriesExPension + totals.stocksValue;
     return categoriesExPension + portfolioAssets(data.portfolios);
-  }, [data.categories, data.portfolios]);
+  }, [data.categories, data.portfolios, stocksLinked, totals.stocksValue]);
 
-  // Assets (investments + stocks + cash) minus liabilities
-  const netWorth = totals.currentValue - liabilitiesTotal;
+  const growth = useMemo(
+    () => growthStats(data.valuationHistory),
+    [data.valuationHistory]
+  );
+
+  // Portfolio value from Investments tab current totals
+  const portfolioValue = totals.currentValue;
 
   const handleImport = async (e) => {
     const file = e.target.files?.[0];
@@ -265,15 +330,6 @@ export default function App() {
     }
   };
 
-  const syncLabel =
-    syncState === 'loading'
-      ? 'Syncing…'
-      : syncState === 'synced'
-        ? 'Saved to cloud'
-        : syncState === 'error'
-          ? 'Cloud sync error'
-          : 'Local only';
-
   return (
     <div className="app">
       <header className="topbar">
@@ -284,8 +340,8 @@ export default function App() {
           <div>
             <h1>MyPortfolio</h1>
             <p className="tagline">
-              Net worth{' '}
-              <strong className={netWorth >= 0 ? 'positive' : 'negative'}>{fmt(netWorth)}</strong>
+              Portfolio{' '}
+              <strong>{fmt(portfolioValue)}</strong>
               {' · '}since{' '}
               {new Date(data.startDate).toLocaleDateString('en-GB', {
                 day: 'numeric',
@@ -293,26 +349,17 @@ export default function App() {
                 year: 'numeric',
               })}
               {' · '}
-              <span className={`sync-pill sync-${syncState}`}>{syncLabel}</span>
+              <SyncStatus state={syncState} />
             </p>
           </div>
         </div>
         <div className="topbar-actions">
-          <AuthBar />
-          <button type="button" className="btn" onClick={() => exportData(data)}>
-            Export
-          </button>
-          <button type="button" className="btn" onClick={() => fileInputRef.current?.click()}>
-            Import
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={() => setResetStep(1)}
-            disabled={resetting}
-          >
-            Reset
-          </button>
+          <AuthBar
+            onExport={() => exportData(data)}
+            onImport={() => fileInputRef.current?.click()}
+            onReset={() => setResetStep(1)}
+            resetting={resetting}
+          />
           <input
             ref={fileInputRef}
             type="file"
@@ -353,6 +400,11 @@ export default function App() {
                 setData((prev) => ({ ...prev, chartStyles }))
               }
             />
+            <PortfolioHealth
+              categories={data.categories}
+              totals={totals}
+              liabilitiesTotal={liabilitiesTotal}
+            />
           </div>
         )}
 
@@ -360,8 +412,12 @@ export default function App() {
           <GrowthChart
             history={data.valuationHistory}
             startDate={data.startDate}
+            currentValue={totals.currentValue}
+            invested={totals.invested}
             onChange={(valuationHistory) =>
-              setData((prev) => syncValuationHistory({ ...prev, valuationHistory }))
+              setData((prev) =>
+                syncValuationHistory({ ...prev, valuationHistory }, quotes)
+              )
             }
           />
         )}
@@ -369,6 +425,11 @@ export default function App() {
         {tab === 'investments' && (
           <CategoriesTable
             categories={data.categories}
+            stocksLinked={stocksLinked}
+            goldRatePerTola={goldRatePerTola}
+            goldRatePerGram={goldRatePerGram}
+            goldRateStatus={goldRateStatus}
+            goldRateUpdatedAt={goldRateUpdatedAt}
             onChange={(categories) => setData((prev) => ({ ...prev, categories }))}
           />
         )}
@@ -391,7 +452,11 @@ export default function App() {
         {tab === 'stocks' && (
           <StocksBreakdown
             portfolios={data.portfolios}
+            quotes={quotes}
+            quoteStatus={quoteStatus}
+            quoteUpdatedAt={quoteUpdatedAt}
             onChange={(portfolios) => setData((prev) => ({ ...prev, portfolios }))}
+            onRefreshQuotes={() => setQuoteRefreshKey((k) => k + 1)}
           />
         )}
       </main>

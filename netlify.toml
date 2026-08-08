@@ -1,6 +1,25 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/gold-rate"
+  to = "/.netlify/functions/gold-rate"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/psx-logo/:symbol"
+  to = "/.netlify/functions/psx-logo?symbol=:symbol"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/psx-quotes"
+  to = "/.netlify/functions/psx-quotes"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"

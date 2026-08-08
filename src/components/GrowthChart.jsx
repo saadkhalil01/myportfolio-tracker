@@ -9,7 +9,7 @@ import {
   CartesianGrid,
   ReferenceLine,
 } from 'recharts';
-import { fmt, fmtPct, uid } from '../storage.js';
+import { fmt, fmtPct, uid, growthStats, todayISO } from '../storage.js';
 
 const tooltipStyle = {
   background: '#ffffff',
@@ -34,65 +34,62 @@ function GrowthTooltip({ active, payload }) {
     <div style={tooltipStyle}>
       <div style={{ color: '#6b778c', marginBottom: 4 }}>{formatAxisDate(point.date)}</div>
       <div>
-        <span style={{ color: '#6b778c' }}>Valuation</span>
+        <span style={{ color: '#6b778c' }}>Current value</span>
         <span style={{ marginLeft: 8, fontWeight: 600 }}>{fmt(point.valuation)}</span>
-      </div>
-      <div>
-        <span style={{ color: '#6b778c' }}>Invested</span>
-        <span style={{ marginLeft: 8, fontWeight: 600 }}>{fmt(point.invested)}</span>
       </div>
     </div>
   );
 }
 
-export default function GrowthChart({ history, startDate, onChange }) {
-  const [draft, setDraft] = useState({ date: '', valuation: '', invested: '' });
+export default function GrowthChart({ history, startDate, currentValue, invested, onChange }) {
+  const [draft, setDraft] = useState({ date: '', value: '' });
 
-  const series = useMemo(
-    () => [...(history || [])].sort((a, b) => a.date.localeCompare(b.date)),
-    [history]
-  );
+  const series = useMemo(() => {
+    const sorted = [...(history || [])].sort((a, b) => a.date.localeCompare(b.date));
+    if (currentValue == null || !Number.isFinite(Number(currentValue))) return sorted;
 
-  const stats = useMemo(() => {
-    if (!series.length) {
-      return { start: 0, end: 0, change: 0, changePct: 0, high: 0, low: 0, up: true };
-    }
-    const start = series[0].valuation;
-    const end = series[series.length - 1].valuation;
-    const change = end - start;
-    const changePct = start > 0 ? (change / start) * 100 : 0;
-    const vals = series.map((p) => p.valuation);
-    return {
-      start,
-      end,
-      change,
-      changePct,
-      high: Math.max(...vals),
-      low: Math.min(...vals),
-      up: change >= 0,
-    };
-  }, [series]);
+    const today = todayISO();
+    const prior = sorted.filter((p) => p.date !== today);
+    const prevInvested =
+      sorted.find((p) => p.date === today)?.invested ??
+      sorted[sorted.length - 1]?.invested ??
+      Number(invested || 0);
+
+    return [
+      ...prior,
+      {
+        date: today,
+        valuation: Number(currentValue),
+        invested: Math.max(Number(invested || 0), Number(prevInvested || 0)),
+      },
+    ].sort((a, b) => a.date.localeCompare(b.date));
+  }, [history, currentValue, invested]);
+
+  const stats = useMemo(() => growthStats(series), [series]);
 
   const stroke = stats.up ? '#0d7a4f' : '#b42318';
   const fillId = 'growthFill';
 
   const addPoint = () => {
-    if (!draft.date || draft.valuation === '') return;
+    if (!draft.date || draft.value === '') return;
+    const base = [...(history || [])].sort((a, b) => a.date.localeCompare(b.date));
+    const nearestInvested =
+      [...base].reverse().find((p) => p.date <= draft.date)?.invested ?? Number(invested || 0);
     const next = [
-      ...series.filter((p) => p.date !== draft.date),
+      ...base.filter((p) => p.date !== draft.date),
       {
         id: uid(),
         date: draft.date,
-        valuation: Number(draft.valuation),
-        invested: Number(draft.invested || 0),
+        valuation: Number(draft.value),
+        invested: Number(nearestInvested || 0),
       },
     ].sort((a, b) => a.date.localeCompare(b.date));
     onChange(next);
-    setDraft({ date: '', valuation: '', invested: '' });
+    setDraft({ date: '', value: '' });
   };
 
   const removePoint = (date) => {
-    onChange(series.filter((p) => p.date !== date));
+    onChange((history || []).filter((p) => p.date !== date));
   };
 
   const axisTick = {
@@ -107,7 +104,7 @@ export default function GrowthChart({ history, startDate, onChange }) {
         <div>
           <h2>Portfolio growth</h2>
           <p className="card-note">
-            From {formatAxisDate(startDate || series[0]?.date || '')} to today — valuation over
+            From {formatAxisDate(startDate || series[0]?.date || '')} to today — current value over
             time. Today updates automatically when you change numbers.
           </p>
         </div>
@@ -142,7 +139,7 @@ export default function GrowthChart({ history, startDate, onChange }) {
 
       {series.length < 2 ? (
         <p className="empty-note">
-          Need at least two history points to draw the chart. Add a past valuation below.
+          Need at least two history points to draw the chart. Add a past value below.
         </p>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
@@ -183,7 +180,7 @@ export default function GrowthChart({ history, startDate, onChange }) {
               stroke={stroke}
               strokeWidth={2.5}
               fill={`url(#${fillId})`}
-              name="Valuation"
+              name="Current value"
               dot={{ r: 3, fill: stroke, strokeWidth: 0 }}
               activeDot={{ r: 5 }}
             />
@@ -192,8 +189,8 @@ export default function GrowthChart({ history, startDate, onChange }) {
       )}
 
       <div className="history-editor">
-        <h3 className="subheading">Log a past valuation</h3>
-        <div className="history-form">
+        <h3 className="subheading">Log a past value</h3>
+        <div className="history-form history-form-simple">
           <input
             className="cell-input"
             type="date"
@@ -203,18 +200,11 @@ export default function GrowthChart({ history, startDate, onChange }) {
           <input
             className="cell-input num"
             type="number"
-            placeholder="Valuation"
-            value={draft.valuation}
-            onChange={(e) => setDraft({ ...draft, valuation: e.target.value })}
+            placeholder="Current value"
+            value={draft.value}
+            onChange={(e) => setDraft({ ...draft, value: e.target.value })}
           />
-          <input
-            className="cell-input num"
-            type="number"
-            placeholder="Invested (optional)"
-            value={draft.invested}
-            onChange={(e) => setDraft({ ...draft, invested: e.target.value })}
-          />
-          <button className="btn" onClick={addPoint} disabled={!draft.date || draft.valuation === ''}>
+          <button className="btn" onClick={addPoint} disabled={!draft.date || draft.value === ''}>
             Add point
           </button>
         </div>
@@ -225,8 +215,7 @@ export default function GrowthChart({ history, startDate, onChange }) {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th className="num">Valuation</th>
-                  <th className="num">Invested</th>
+                  <th className="num">Current value</th>
                   <th></th>
                 </tr>
               </thead>
@@ -235,7 +224,6 @@ export default function GrowthChart({ history, startDate, onChange }) {
                   <tr key={p.date}>
                     <td>{formatAxisDate(p.date)}</td>
                     <td className="num">{fmt(p.valuation)}</td>
-                    <td className="num">{fmt(p.invested)}</td>
                     <td className="row-actions">
                       <button
                         className="btn-icon"
