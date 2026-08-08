@@ -125,7 +125,8 @@ export default function CategoriesTable({
       {categories.length === 0 ? (
         <p className="empty-note">No investments yet — use + Add category to create one.</p>
       ) : (
-        <table className="data-table">
+        <div className="table-scroll">
+        <table className="data-table investments-table">
           <thead>
             <tr>
               <th>Category</th>
@@ -274,6 +275,7 @@ export default function CategoriesTable({
             })}
           </tbody>
         </table>
+        </div>
       )}
       {settingsCategory ? (
         <div className="modal-backdrop" role="presentation">

@@ -494,6 +494,8 @@ li:hover .btn-icon {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 14px;
 }
 
@@ -1431,6 +1433,10 @@ input[type='number'] {
   overflow-x: auto;
 }
 
+.investments-table {
+  min-width: 540px;
+}
+
 .targets-table {
   min-width: 520px;
 }
@@ -1969,4 +1975,75 @@ input[type='number'] {
   display: table;
   width: 100%;
   table-layout: fixed;
+}
+
+/* ---------- mobile ---------- */
+@media (max-width: 600px) {
+  .app {
+    padding: 16px 14px 40px;
+    gap: 14px;
+  }
+
+  .topbar {
+    gap: 10px;
+  }
+
+  .topbar h1 {
+    font-size: 19px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .tagline {
+    font-size: 12px;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .card {
+    padding: 14px 14px;
+  }
+
+  .card-header {
+    margin-bottom: 12px;
+  }
+
+  .liabilities-card h2,
+  .liabilities-card .card-header h2 {
+    font-size: 16px;
+  }
+
+  .modal {
+    padding: 18px 16px 16px;
+  }
+
+  .health-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .auth-user {
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 380px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-stats {
+    grid-template-columns: 1fr;
+  }
 }
