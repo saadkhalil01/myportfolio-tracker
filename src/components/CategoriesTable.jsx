@@ -22,6 +22,14 @@ export default function CategoriesTable({
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [settingsCategoryId, setSettingsCategoryId] = useState(null);
   const settingsCategory = categories.find((category) => category.id === settingsCategoryId);
+  const investedTotal = categories.reduce(
+    (sum, category) => sum + Number(category.invested || 0),
+    0
+  );
+  const currentTotal = categories.reduce(
+    (sum, category) => sum + Number(category.currentValue || 0),
+    0
+  );
 
   const update = (id, field, value) => {
     onChange(
@@ -275,6 +283,18 @@ export default function CategoriesTable({
             })}
           </tbody>
         </table>
+        </div>
+      )}
+      {categories.length > 0 && (
+        <div className="section-totals" aria-label="Investment totals">
+          <div>
+            <span className="stat-label">Total invested</span>
+            <strong>{fmt(investedTotal)}</strong>
+          </div>
+          <div className="section-total-primary">
+            <span className="stat-label">Total current value</span>
+            <strong>{fmt(currentTotal)}</strong>
+          </div>
         </div>
       )}
       {settingsCategory ? (

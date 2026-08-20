@@ -7,11 +7,11 @@ export default function SummaryCards({ data, totals, onChange }) {
 
   return (
     <section className="summary-grid">
-      <div className="card stat">
+      <div className="card stat stat-total">
         <span className="stat-label">Total invested</span>
         <span className="stat-value">{fmt(invested)}</span>
       </div>
-      <div className="card stat">
+      <div className="card stat stat-total stat-primary">
         <span className="stat-label">Current value</span>
         <span className="stat-value">{fmt(currentValue)}</span>
       </div>

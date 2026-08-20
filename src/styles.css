@@ -726,7 +726,13 @@ li:hover .btn-icon {
 
 @media (max-width: 520px) {
   .summary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .summary-grid .stat-primary {
+    grid-column: 1 / -1;
+    grid-row: 1;
   }
 }
 
@@ -746,11 +752,29 @@ li:hover .btn-icon {
 }
 
 .stat-value {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 700;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.stat-total {
+  border-color: color-mix(in srgb, var(--accent), var(--border) 70%);
+}
+
+.stat-total .stat-value,
+.insight-stat-primary .stat-value {
+  font-size: clamp(26px, 3vw, 34px);
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.stat-primary,
+.insight-stat-primary {
+  background: linear-gradient(145deg, #fff 0%, var(--accent-soft) 145%);
+  border-color: color-mix(in srgb, var(--accent), var(--border) 58%);
 }
 
 .stat-sub {
@@ -1320,9 +1344,43 @@ input[type='number'] {
 }
 
 .list-total-value {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: clamp(22px, 2.5vw, 30px);
+  font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+.section-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.section-totals > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.section-totals strong {
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.section-totals .section-total-primary {
+  border-color: color-mix(in srgb, var(--accent), var(--border) 58%);
+  background: linear-gradient(145deg, #fff 0%, var(--accent-soft) 145%);
 }
 
 /* ---------- liabilities page ---------- */
@@ -1392,7 +1450,7 @@ input[type='number'] {
 /* Total sits in the same amount column as the rows above */
 .liabilities-total {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 7.5rem 22px;
+  grid-template-columns: minmax(0, 1fr) auto;
   column-gap: 6px;
   align-items: center;
   justify-content: unset;
@@ -1402,11 +1460,11 @@ input[type='number'] {
 
 .liabilities-total .list-total-value {
   grid-column: 2;
-  width: 100%;
+  min-width: 9rem;
   text-align: right;
-  font-size: 15px;
-  font-weight: 700;
-  padding: 8px 10px;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 800;
+  padding: 10px 14px;
   box-sizing: border-box;
   background: var(--red-soft);
   border-radius: 6px;
@@ -1537,6 +1595,11 @@ input[type='number'] {
   .insight-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .insight-stats .insight-stat-primary {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
 }
 
 .insight-stat {
@@ -1549,8 +1612,8 @@ input[type='number'] {
   gap: 6px;
 }
 
-.insight-stat .stat-value {
-  font-size: 20px;
+.insight-stat:not(.insight-stat-primary) .stat-value {
+  font-size: clamp(20px, 2.3vw, 26px);
 }
 
 .portfolio-grid {
@@ -1980,8 +2043,13 @@ input[type='number'] {
 /* ---------- mobile ---------- */
 @media (max-width: 600px) {
   .app {
-    padding: 16px 14px 40px;
+    width: 100%;
+    padding: 14px 12px 36px;
     gap: 14px;
+  }
+
+  .page {
+    min-height: 0;
   }
 
   .topbar {
@@ -2010,8 +2078,42 @@ input[type='number'] {
     justify-content: space-between;
   }
 
+  .navbar {
+    width: 100%;
+    padding: 3px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .navbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 9px 13px;
+    scroll-snap-align: start;
+  }
+
   .card {
-    padding: 14px 14px;
+    min-width: 0;
+    padding: 14px 12px;
+  }
+
+  .summary-grid .card {
+    padding: 14px;
+  }
+
+  .stat {
+    min-width: 0;
+    min-height: 104px;
+  }
+
+  .stat-input {
+    min-width: 0;
+    font-size: 16px;
+    padding-inline: 8px;
   }
 
   .card-header {
@@ -2036,11 +2138,56 @@ input[type='number'] {
   .auth-user {
     max-width: 120px;
   }
+
+  .table-scroll,
+  .table-wrap {
+    margin-inline: -12px;
+    padding-inline: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .data-table th,
+  .data-table td {
+    white-space: nowrap;
+  }
+
+  .btn,
+  .btn-icon {
+    min-height: 40px;
+  }
+
+  .btn-icon {
+    opacity: 1;
+  }
+
+  .section-totals {
+    grid-template-columns: 1fr;
+  }
+
+  .section-total-primary {
+    grid-row: 1;
+  }
+
+  .liabilities-list li {
+    grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 42%) 22px;
+  }
+
+  .liabilities-total {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .liabilities-total .list-total-value {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 380px) {
   .summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .summary-grid .stat-primary {
+    grid-column: auto;
   }
 
   .insight-stats {

@@ -115,7 +115,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
           <span className="stat-label">Starting value</span>
           <span className="stat-value">{fmt(stats.start)}</span>
         </div>
-        <div className="insight-stat">
+        <div className="insight-stat insight-stat-primary">
           <span className="stat-label">Current value</span>
           <span className="stat-value">{fmt(stats.end)}</span>
         </div>

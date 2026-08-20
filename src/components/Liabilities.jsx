@@ -3,6 +3,9 @@ import MoneyInput from './MoneyInput.jsx';
 
 export default function Liabilities({ liabilities, onChange }) {
   const total = liabilities.reduce((s, l) => s + Number(l.amount || 0), 0);
+  const sortedLiabilities = [...liabilities].sort(
+    (a, b) => Number(b.amount || 0) - Number(a.amount || 0)
+  );
 
   const update = (id, field, value) => {
     onChange(liabilities.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
@@ -28,7 +31,7 @@ export default function Liabilities({ liabilities, onChange }) {
       ) : (
         <>
           <ul className="item-list liabilities-list">
-            {liabilities.map((l) => (
+            {sortedLiabilities.map((l) => (
               <li key={l.id}>
                 <input
                   className="cell-input name liability-name"
@@ -53,6 +56,7 @@ export default function Liabilities({ liabilities, onChange }) {
           </ul>
 
           <div className="list-total liabilities-total">
+            <span className="list-total-label">Total liabilities</span>
             <span className="list-total-value negative">{fmt(total)}</span>
           </div>
         </>

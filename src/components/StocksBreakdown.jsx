@@ -283,7 +283,7 @@ export default function StocksBreakdown({
           <span className="stat-label">Cash</span>
           <span className="stat-value">{fmt(totalCash)}</span>
         </div>
-        <div className="insight-stat">
+        <div className="insight-stat insight-stat-primary">
           <span className="stat-label">Market value</span>
           <span className="stat-value">{fmt(totalDisplayValue)}</span>
           <span
