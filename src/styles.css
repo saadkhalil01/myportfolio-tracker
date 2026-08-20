@@ -752,7 +752,7 @@ li:hover .btn-icon {
 }
 
 .stat-value {
-  font-size: clamp(22px, 2.2vw, 28px);
+  font-size: clamp(20px, 1.9vw, 24px);
   font-weight: 700;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -766,8 +766,8 @@ li:hover .btn-icon {
 
 .stat-total .stat-value,
 .insight-stat-primary .stat-value {
-  font-size: clamp(26px, 3vw, 34px);
-  font-weight: 800;
+  font-size: clamp(23px, 2.4vw, 28px);
+  font-weight: 700;
   line-height: 1.08;
 }
 
@@ -1344,8 +1344,8 @@ input[type='number'] {
 }
 
 .list-total-value {
-  font-size: clamp(22px, 2.5vw, 30px);
-  font-weight: 800;
+  font-size: clamp(20px, 2.1vw, 25px);
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -1370,8 +1370,8 @@ input[type='number'] {
 }
 
 .section-totals strong {
-  font-size: clamp(22px, 3vw, 30px);
-  font-weight: 800;
+  font-size: clamp(20px, 2.2vw, 26px);
+  font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.025em;
   font-variant-numeric: tabular-nums;
@@ -1462,8 +1462,8 @@ input[type='number'] {
   grid-column: 2;
   min-width: 9rem;
   text-align: right;
-  font-size: clamp(24px, 3vw, 32px);
-  font-weight: 800;
+  font-size: clamp(21px, 2.3vw, 27px);
+  font-weight: 700;
   padding: 10px 14px;
   box-sizing: border-box;
   background: var(--red-soft);
@@ -1613,7 +1613,7 @@ input[type='number'] {
 }
 
 .insight-stat:not(.insight-stat-primary) .stat-value {
-  font-size: clamp(20px, 2.3vw, 26px);
+  font-size: clamp(19px, 1.9vw, 23px);
 }
 
 .portfolio-grid {
