@@ -567,11 +567,11 @@ li:hover .btn-icon {
 }
 
 .data-table tbody .category-row td {
-  background: color-mix(in srgb, var(--category-bg), white 62%);
+  background: color-mix(in srgb, var(--category-bg) 18%, var(--surface));
 }
 
 .data-table tbody .category-row:hover td {
-  background: color-mix(in srgb, var(--category-bg), white 45%);
+  background: color-mix(in srgb, var(--category-bg) 26%, var(--surface-muted));
 }
 
 .category-name-wrap {
@@ -1611,7 +1611,7 @@ input[type='number'] {
 
 .section-totals .section-total-primary {
   border-color: color-mix(in srgb, var(--accent), var(--border) 58%);
-  background: linear-gradient(145deg, #fff 0%, var(--accent-soft) 145%);
+  background: linear-gradient(145deg, var(--surface-muted) 0%, var(--accent-soft) 145%);
 }
 
 /* ---------- liabilities page ---------- */
