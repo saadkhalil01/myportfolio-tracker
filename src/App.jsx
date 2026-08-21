@@ -334,25 +334,36 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-mark" aria-hidden="true">
-            M
-          </div>
+          <svg className="brand-mark" viewBox="0 0 42 36" aria-hidden="true">
+            <path d="M3 30V6l8-3 10 10L31 3l8 3v24l-7 3V13L21 24 10 13v20z" fill="currentColor" />
+          </svg>
           <div>
             <h1>MyPortfolio</h1>
             <p className="tagline">
-              Portfolio{' '}
-              <strong>{fmt(portfolioValue)}</strong>
-              {' · '}since{' '}
+              Portfolio ID: <strong>MP-{String(Math.round(portfolioValue || 782400)).slice(0, 6)}KL</strong>
+              <span className="tagline-date">since{' '}
               {new Date(data.startDate).toLocaleDateString('en-GB', {
                 day: 'numeric',
                 month: 'short',
                 year: 'numeric',
               })}
-              {' · '}
-              <SyncStatus state={syncState} />
+              {' · '}<SyncStatus state={syncState} /></span>
             </p>
           </div>
         </div>
+        <nav className="navbar" aria-label="Main">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`nav-link${tab === item.id ? ' active' : ''}`}
+              onClick={() => setTab(item.id)}
+              aria-current={tab === item.id ? 'page' : undefined}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
         <div className="topbar-actions">
           <AuthBar
             onExport={() => exportData(data)}
@@ -372,20 +383,6 @@ export default function App() {
 
       {syncError ? <p className="sync-error-banner">{syncError}</p> : null}
       {toast ? <p className="toast-banner">{toast}</p> : null}
-
-      <nav className="navbar" aria-label="Main">
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`nav-link${tab === item.id ? ' active' : ''}`}
-            onClick={() => setTab(item.id)}
-            aria-current={tab === item.id ? 'page' : undefined}
-          >
-            {item.label}
-          </button>
-        ))}
-      </nav>
 
       <main className="page">
         {tab === 'overview' && (

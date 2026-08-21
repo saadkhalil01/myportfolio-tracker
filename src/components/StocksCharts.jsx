@@ -3,17 +3,17 @@ import { ChartCard } from './ChartsPanel.jsx';
 import { normalizeSymbol } from '../psxQuotes.js';
 
 const PALETTE = [
-  '#1a56db',
-  '#0d7a4f',
-  '#7c3aed',
-  '#b45309',
-  '#be185d',
-  '#0e7490',
-  '#c2410c',
-  '#64748b',
+  '#28aa91',
+  '#57b95f',
+  '#7554be',
+  '#f29125',
+  '#e23e45',
+  '#d84c9b',
+  '#278fa2',
+  '#78838c',
 ];
 
-const CASH_COLOR = '#0e7490';
+const CASH_COLOR = '#78838c';
 const CASH_LABEL = 'Cash';
 
 const DEFAULT_STYLES = {

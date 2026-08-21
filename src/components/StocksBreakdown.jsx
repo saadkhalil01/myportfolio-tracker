@@ -31,6 +31,16 @@ function holdingCost(h) {
   return Number(h.avgBuy || 0) * Number(h.shares || 0);
 }
 
+function StatIcon({ type }) {
+  const paths = {
+    portfolios: <><path d="M3 8h7l2 2h9v10H3z" /><path d="M3 8V5h7l2 2h7" /></>,
+    stocks: <><path d="m4 17 5-5 4 3 7-9" /><path d="M15 6h5v5" /><path d="M4 21h16" /></>,
+    cash: <><path d="M5 7h13a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12" /><path d="M16 11h5v5h-5a2.5 2.5 0 0 1 0-5z" /></>,
+    value: <><path d="m4 17 5-5 4 3 7-9" /><path d="M15 6h5v5" /></>,
+  };
+  return <span className={`insight-stat-icon icon-${type}`}><svg viewBox="0 0 24 24" aria-hidden="true">{paths[type]}</svg></span>;
+}
+
 function portfolioStockCost(p) {
   return (p.holdings || []).reduce((s, h) => s + holdingCost(h), 0);
 }
@@ -225,10 +235,9 @@ export default function StocksBreakdown({
     <section className="card insights-card">
       <div className="card-header">
         <div>
-          <h2>Insights · Stocks breakdown</h2>
+          <h2><span>Insights</span> <i /> Stocks breakdown</h2>
           <p className="card-note">
-            Track holdings with live PSX prices (delayed / last traded). Market total feeds
-            Investments → Stock current value.
+            Analyze your stock holdings, portfolio allocation and unrealized performance.
           </p>
         </div>
         <div className="card-header-actions">
@@ -258,13 +267,13 @@ export default function StocksBreakdown({
           </label>
           <button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-refresh"
             disabled={quoteStatus === 'loading' || !symbols.length}
             onClick={() => onRefreshQuotes?.()}
           >
-            Refresh prices
+            ↻&nbsp;&nbsp; Refresh prices
           </button>
-          <button type="button" className="btn btn-ghost" onClick={addPortfolio}>
+          <button type="button" className="btn btn-add-portfolio" onClick={addPortfolio}>
             + Add portfolio
           </button>
         </div>
@@ -272,20 +281,33 @@ export default function StocksBreakdown({
 
       <div className="insight-stats">
         <div className="insight-stat">
+          <StatIcon type="portfolios" />
+          <div className="insight-stat-copy">
           <span className="stat-label">Portfolios</span>
           <span className="stat-value">{totalPortfolios}</span>
+          </div>
         </div>
         <div className="insight-stat">
+          <StatIcon type="stocks" />
+          <div className="insight-stat-copy">
           <span className="stat-label">Stocks held</span>
           <span className="stat-value">{totalHoldings}</span>
+          </div>
         </div>
         <div className="insight-stat">
+          <StatIcon type="cash" />
+          <div className="insight-stat-copy">
           <span className="stat-label">Cash</span>
           <span className="stat-value">{fmt(totalCash)}</span>
+          <small>PKR</small>
+          </div>
         </div>
         <div className="insight-stat insight-stat-primary">
+          <StatIcon type="value" />
+          <div className="insight-stat-copy">
           <span className="stat-label">Market value</span>
           <span className="stat-value">{fmt(totalDisplayValue)}</span>
+          <small>PKR</small>
           <span
             className={`stat-sub ${
               marketStats.priced ? (marketStats.unrealized >= 0 ? 'positive' : 'negative') : ''
@@ -295,6 +317,7 @@ export default function StocksBreakdown({
               ? `Unrealized ${marketStats.unrealized >= 0 ? '+' : ''}${fmt(marketStats.unrealized)} · ${fmtPrice(totalShares)} shares`
               : `Cost ${fmt(totalStockCost)} · ${fmtPrice(totalShares)} shares`}
           </span>
+          </div>
         </div>
       </div>
 

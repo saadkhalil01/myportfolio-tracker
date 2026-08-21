@@ -736,6 +736,237 @@ li:hover .btn-icon {
   }
 }
 
+/* ---------- 2026 dark portfolio interface ---------- */
+:root {
+  --bg: #071116;
+  --bg-accent: #09141a;
+  --surface: #0d181e;
+  --surface-muted: #101c22;
+  --border: #293840;
+  --border-strong: #405159;
+  --text: #f4f6f6;
+  --text-secondary: #c8d0d3;
+  --text-muted: #94a0a5;
+  --accent: #23c9a5;
+  --accent-soft: rgba(35, 201, 165, 0.12);
+  --green: #45d98b;
+  --green-soft: rgba(69, 217, 139, 0.12);
+  --red: #f05454;
+  --red-soft: rgba(240, 84, 84, 0.12);
+  --radius: 10px;
+  --shadow: 0 8px 26px rgba(0, 0, 0, 0.12);
+}
+
+body {
+  background: radial-gradient(circle at 45% -20%, #112129 0, transparent 45%), #071116;
+}
+
+.app {
+  max-width: none;
+  min-height: 100vh;
+  padding: 0 0 30px;
+  gap: 0;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) auto minmax(220px, 1fr);
+  min-height: 62px;
+  padding: 0 22px;
+  border-bottom: 1px solid #1e2b31;
+  background: rgba(6, 14, 18, 0.92);
+  flex-wrap: nowrap;
+}
+
+.brand { gap: 10px; }
+
+.brand-mark {
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #4fc8ad;
+}
+
+.topbar h1 { font-size: 19px; color: #f7f8f8; }
+
+.tagline { font-size: 11px; line-height: 1.25; color: #c5cdd0; }
+.tagline-date { display: block; color: #879399; }
+
+.navbar {
+  align-self: stretch;
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.nav-link {
+  position: relative;
+  padding: 0 5px;
+  border-radius: 0;
+  color: #aeb7bb;
+  font-size: 13px;
+}
+
+.nav-link:hover { background: transparent; color: #fff; }
+.nav-link.active,
+.nav-link.active:hover { color: #fff; background: transparent; }
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 8px;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #27d4b1;
+  box-shadow: 0 0 10px rgba(39, 212, 177, 0.75);
+}
+
+.topbar-actions { justify-self: end; }
+.auth-avatar { width: 36px; height: 36px; border-color: #4b585e; }
+.auth-user { color: #f2f4f5; }
+.header-menu-trigger { border: 0; background: transparent; color: #aeb8bd; font-size: 16px; }
+.header-menu-panel { background: #111e24; }
+.auth-muted { display: none; }
+
+.page {
+  width: min(100%, 1440px);
+  min-height: 420px;
+  margin: 0 auto;
+  padding: 18px 22px 0;
+}
+
+.footer { display: none; }
+
+.card { background: #0d181e; border-color: #2b3a42; }
+.insights-card { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.insights-card > .card-header { margin: 0 0 14px; align-items: flex-end; }
+.insights-card > .card-header h2 { font-size: 28px; font-weight: 500; letter-spacing: -0.035em; }
+.insights-card > .card-header h2 span { font-weight: 650; }
+.insights-card > .card-header h2 i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 8px 4px;
+  border-radius: 50%;
+  background: #37c7ab;
+}
+.insights-card .card-note { margin-top: 5px; color: #9ba6aa; font-size: 13px; }
+.quote-status, .sort-control { display: none; }
+
+.btn-refresh,
+.btn-add-portfolio {
+  min-height: 43px;
+  padding: 0 19px;
+  border: 1px solid #3a4950;
+  border-radius: 9px;
+  background: #0d171c;
+  color: #f2f5f5;
+  font-size: 14px;
+}
+.btn-add-portfolio { background: linear-gradient(135deg, #19a78c, #107b70); border-color: #21b79b; }
+.btn-refresh:hover { background: #142229; color: #fff; }
+.btn-add-portfolio:hover { background: linear-gradient(135deg, #22b99b, #16877b); color: #fff; }
+
+.insight-stats { gap: 12px; margin: 0 0 12px; }
+.insight-stat {
+  min-height: 94px;
+  padding: 15px 16px;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  border-color: #304048;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #101c22, #0b161c);
+}
+.insight-stat-primary { background: linear-gradient(120deg, #101c22, #0d1a20); }
+.insight-stat-copy { display: flex; min-width: 0; flex-direction: column; }
+.insight-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 10px;
+  color: #53d6bc;
+  background: linear-gradient(135deg, rgba(61, 197, 172, .22), rgba(25, 94, 84, .25));
+}
+.insight-stat-icon svg { width: 29px; height: 29px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.insight-stat-icon.icon-cash { color: #f3b13b; background: linear-gradient(135deg, rgba(197, 126, 23, .35), rgba(98, 64, 17, .24)); }
+.insight-stat .stat-label { margin-bottom: 2px; color: #aeb8bc; font-size: 13px; text-transform: none; letter-spacing: 0; }
+.insight-stat .stat-value,
+.insight-stat:not(.insight-stat-primary) .stat-value,
+.insight-stat-primary .stat-value { color: #f7f8f8; font-size: 27px; line-height: 1.05; }
+.insight-stat small { margin-top: 2px; color: #9ba6aa; font-size: 11px; }
+.insight-stat .stat-sub { margin-top: 2px; font-size: 11px; white-space: nowrap; }
+
+.stock-insight-charts { margin-bottom: 12px; gap: 12px; }
+.insights-card .nested-chart-card { min-height: 250px; padding: 12px 14px; background: linear-gradient(145deg, #101c22, #0a151a); border-color: #304048; border-radius: 10px; }
+.insights-card .nested-chart-card h2 { font-size: 15px; }
+.chart-card select { background-color: #121e24; border-color: #35454d; color: #dce2e4; }
+.recharts-cartesian-grid line { stroke: #203038; }
+.recharts-text { fill: #aab4b8; }
+.recharts-default-tooltip { background: #111e24 !important; border-color: #34454d !important; }
+.recharts-legend-item-text { color: #aeb9bd !important; }
+.recharts-pie-sector path { stroke: #101b20; }
+
+.portfolio-grid { gap: 12px; }
+.portfolio-card { padding: 10px 12px 7px; gap: 8px; background: linear-gradient(145deg, #0f1b21, #0a151a); border-color: #304048; border-radius: 10px; }
+.portfolio-card-head { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 6px 20px; }
+.portfolio-title-row { align-self: end; }
+.portfolio-name { max-width: 360px; color: #fff; font-size: 19px; }
+.portfolio-meta-row { display: flex; grid-column: 1; gap: 5px; }
+.portfolio-meta-row .cell-input { width: auto; max-width: 140px; border: 1px solid #3b4a51; border-radius: 999px; background: transparent; color: #dbe1e3; }
+.portfolio-card-head > .cell-input { grid-column: 1; max-width: 400px; color: #aeb9bd; }
+.portfolio-cash-row { grid-column: 2; grid-row: 1 / span 3; align-self: center; min-width: 190px; padding: 8px 12px; background: #101c22; border-color: #293941; }
+.portfolio-cash-row .cell-input.num.money-input { color: #fff; background: transparent; font-size: 19px; font-weight: 600; }
+.portfolio-summary-line { grid-column: 1 / -1; padding-top: 7px; border-top: 1px solid #26363e; color: #c8d0d3; }
+.portfolio-summary-line span:not(:last-child)::after { content: '•'; margin-left: 12px; color: #758087; }
+
+.portfolio-card .table-wrap { border-color: #293941; background: #0d181e; }
+.holdings-table,
+.holdings-table th:first-child,
+.holdings-table td:first-child { background: #0d181e; }
+.holdings-table thead th:first-child { background: #101c22; }
+.data-table th { color: #a6b0b4; background: #101c22; border-color: #293941; }
+.data-table td { color: #e5e9ea; border-color: #27363e; }
+.data-table tbody tr:hover td { background: #122128; }
+.cell-input { color: #eef1f2; background: transparent; }
+.cell-input:focus { background: #122128; }
+.stock-logo { border-color: #34444b; }
+.add-holding { align-self: flex-start; color: #42d0b1; }
+.positive { color: #4cda91 !important; }
+.negative { color: #f05a5a !important; }
+
+@media (max-width: 980px) {
+  .topbar { grid-template-columns: auto 1fr; padding: 9px 16px; }
+  .navbar { grid-column: 1 / -1; grid-row: 2; min-height: 42px; justify-content: center; }
+  .topbar-actions { grid-column: 2; grid-row: 1; }
+  .nav-link.active::after { bottom: 2px; }
+  .page { padding: 16px; }
+  .insights-card > .card-header { align-items: flex-start; }
+}
+
+@media (max-width: 720px) {
+  .topbar { display: flex; }
+  .navbar { order: 3; width: 100%; justify-content: flex-start; }
+  .topbar-actions { margin-left: auto; }
+  .auth-user { display: none; }
+  .insights-card > .card-header h2 { font-size: 23px; }
+  .card-header-actions { width: 100%; justify-content: stretch; }
+  .card-header-actions .btn { flex: 1; }
+  .insight-stat { min-height: 86px; padding: 12px; }
+  .insight-stat-icon { width: 40px; height: 40px; flex-basis: 40px; }
+  .insight-stat-icon svg { width: 24px; }
+  .portfolio-card-head { display: flex; flex-direction: column; }
+  .portfolio-cash-row { width: 100%; }
+}
+
 .stat {
   display: flex;
   flex-direction: column;
@@ -2193,4 +2424,26 @@ input[type='number'] {
   .insight-stats {
     grid-template-columns: 1fr;
   }
+}
+
+/* Keep the stock redesign above legacy component rules in the cascade. */
+.insights-card.card { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.insights-card .insight-stat { flex-direction: row; align-items: flex-start; border-radius: 10px; background: linear-gradient(120deg, #101c22, #0b161c); }
+.insights-card .insight-stat-primary { background: linear-gradient(120deg, #101c22, #0d1a20); }
+.insights-card .nested-chart-card.card { padding: 12px 14px; background: linear-gradient(145deg, #101c22, #0a151a); border-color: #304048; border-radius: 10px; }
+.insights-card .portfolio-card { padding: 10px 12px 7px; background: linear-gradient(145deg, #0f1b21, #0a151a); border-color: #304048; border-radius: 10px; }
+.insights-card .portfolio-card-head { display: grid; grid-template-columns: minmax(240px, 1fr) auto; gap: 6px 20px; }
+.insights-card .portfolio-meta-row { display: flex; grid-column: 1; gap: 5px; }
+.insights-card .portfolio-cash-row { grid-column: 2; grid-row: 1 / span 3; align-self: center; min-width: 190px; padding: 8px 12px; background: #101c22; border-color: #293941; }
+.insights-card .portfolio-summary-line { grid-column: 1 / -1; padding-top: 7px; border-top: 1px solid #26363e; color: #c8d0d3; }
+.insights-card .holdings-table,
+.insights-card .holdings-table th:first-child,
+.insights-card .holdings-table td:first-child { background: #0d181e; }
+.insights-card .holdings-table thead th:first-child { background: #101c22; }
+.insights-card .quote-status,
+.insights-card .sort-control { display: none; }
+
+@media (max-width: 720px) {
+  .insights-card .portfolio-card-head { display: flex; flex-direction: column; }
+  .insights-card .portfolio-cash-row { width: 100%; }
 }
