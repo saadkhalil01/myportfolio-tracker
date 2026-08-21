@@ -42,7 +42,7 @@ const NAV_ITEMS = [
   { id: 'stocks', label: 'Stocks' },
 ];
 
-const NAV_STORAGE_KEY = 'myportfolio-active-tab';
+const NAV_STORAGE_KEY = 'myportfolio-active-tab-v2';
 
 function loadTab() {
   try {
@@ -51,7 +51,7 @@ function loadTab() {
   } catch {
     /* ignore */
   }
-  return 'overview';
+  return 'stocks';
 }
 
 export default function App() {
