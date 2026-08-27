@@ -21,6 +21,15 @@ const SORT_OPTIONS = [
   { id: 'avgBuy', label: 'Avg buy' },
 ];
 
+const STOCK_COLORS = ['#28aa91', '#57b95f', '#7554be', '#f29125', '#e23e45', '#d84c9b', '#278fa2', '#78838c'];
+
+function stockColor(holding) {
+  if (/^#[0-9a-f]{6}$/i.test(String(holding?.customColor || ''))) return holding.customColor;
+  const name = normalizeSymbol(holding?.name);
+  const hash = [...name].reduce((total, char) => total + char.charCodeAt(0), 0);
+  return STOCK_COLORS[hash % STOCK_COLORS.length];
+}
+
 const fmtPrice = (n, digits = 2) =>
   Number(n || 0).toLocaleString('en-PK', {
     minimumFractionDigits: 0,
@@ -443,9 +452,27 @@ export default function StocksBreakdown({
                           q?.change > 0 ? 'positive' : q?.change < 0 ? 'negative' : '';
 
                         return (
-                          <tr key={h.id}>
+                          <tr
+                            key={h.id}
+                            className="category-row"
+                            style={{ '--category-bg': stockColor(h) }}
+                          >
                             <td>
                               <div className="stock-name-cell">
+                                <label
+                                  className="category-color-picker-wrap"
+                                  title={`Choose color for ${h.name || 'stock'}`}
+                                >
+                                  <input
+                                    className="category-color-picker"
+                                    type="color"
+                                    value={stockColor(h)}
+                                    aria-label={`Choose color for ${h.name || 'stock'}`}
+                                    onChange={(event) =>
+                                      updateHolding(p.id, h.id, 'customColor', event.target.value)
+                                    }
+                                  />
+                                </label>
                                 <StockLogo name={h.name} />
                                 <input
                                   className="cell-input name"

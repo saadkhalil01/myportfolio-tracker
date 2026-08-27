@@ -39,16 +39,16 @@ const PALETTE = [
 ];
 
 const tooltipStyle = {
-  background: '#ffffff',
-  border: '1px solid #d8dee8',
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
   borderRadius: 6,
-  color: '#1a2332',
+  color: 'var(--text)',
   boxShadow: '0 4px 12px rgba(26, 35, 50, 0.08)',
   fontFamily: "'Google Sans', system-ui, sans-serif",
 };
 
 const axisTick = {
-  fill: '#6b778c',
+  fill: 'var(--text-muted)',
   fontSize: 11,
   fontFamily: 'Google Sans, system-ui, sans-serif',
 };
@@ -79,10 +79,10 @@ function ChartTooltip({ active, payload }) {
         const pct = p.payload?.pct;
         return (
           <div key={name || p.dataKey}>
-            <span style={{ color: '#6b778c' }}>{name}</span>
+            <span style={{ color: 'var(--text-muted)' }}>{name}</span>
             <span style={{ marginLeft: 8, fontWeight: 600 }}>{fmt(p.value)}</span>
             {pct != null && (
-              <span style={{ marginLeft: 6, color: '#6b778c' }}>({fmtPct(pct)})</span>
+              <span style={{ marginLeft: 6, color: 'var(--text-muted)' }}>({fmtPct(pct)})</span>
             )}
           </div>
         );
@@ -142,7 +142,7 @@ function CoverageScale({ assets, liabilities }) {
   );
 }
 
-function FlexibleChart({ data, style, chartId }) {
+function FlexibleChart({ data, style, chartId, sideLegend = false }) {
   const colored = withPercents(data);
   const empty = colored.length === 0 || colored.every((d) => !d.value);
   const gradientId = `areaFill-${chartId}`;
@@ -152,6 +152,42 @@ function FlexibleChart({ data, style, chartId }) {
   }
 
   if (style === 'donut' || style === 'pie') {
+    if (sideLegend) {
+      return (
+        <div className="chart-side-layout">
+          <div className="chart-side-plot">
+            <ResponsiveContainer width="100%" height={240}>
+              <PieChart>
+                <Pie
+                  data={colored}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={style === 'donut' ? 58 : 0}
+                  outerRadius={88}
+                  paddingAngle={style === 'donut' ? 1.5 : 1}
+                  stroke="var(--surface-muted)"
+                  strokeWidth={2}
+                >
+                  {colored.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<ChartTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="chart-side-legend" aria-label="Chart legend">
+            {colored.map((entry) => (
+              <div key={entry.name} className="chart-side-legend-item">
+                <span style={{ background: entry.color }} aria-hidden="true" />
+                <span>{entry.name} · {fmtPct(entry.pct)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <ResponsiveContainer width="100%" height={240}>
         <PieChart>
@@ -162,7 +198,7 @@ function FlexibleChart({ data, style, chartId }) {
             innerRadius={style === 'donut' ? 58 : 0}
             outerRadius={88}
             paddingAngle={style === 'donut' ? 1.5 : 1}
-            stroke="#fff"
+            stroke="var(--surface-muted)"
             strokeWidth={2}
           >
             {colored.map((entry) => (
@@ -184,7 +220,7 @@ function FlexibleChart({ data, style, chartId }) {
           layout="vertical"
           margin={{ top: 8, right: 12, left: 4, bottom: 0 }}
         >
-          <CartesianGrid stroke="#eef1f5" horizontal={false} />
+          <CartesianGrid stroke="var(--border)" horizontal={false} />
           <XAxis
             type="number"
             tick={axisTick}
@@ -216,7 +252,7 @@ function FlexibleChart({ data, style, chartId }) {
     return (
       <ResponsiveContainer width="100%" height={240}>
         <LineChart data={colored} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
-          <CartesianGrid stroke="#eef1f5" vertical={false} />
+          <CartesianGrid stroke="var(--border)" vertical={false} />
           <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
           <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
           <Tooltip content={<ChartTooltip />} />
@@ -245,7 +281,7 @@ function FlexibleChart({ data, style, chartId }) {
               <stop offset="100%" stopColor="#1a56db" stopOpacity={0.02} />
             </linearGradient>
           </defs>
-          <CartesianGrid stroke="#eef1f5" vertical={false} />
+          <CartesianGrid stroke="var(--border)" vertical={false} />
           <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
           <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
           <Tooltip content={<ChartTooltip />} />
@@ -267,7 +303,7 @@ function FlexibleChart({ data, style, chartId }) {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <BarChart data={colored} margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
-        <CartesianGrid stroke="#eef1f5" vertical={false} />
+        <CartesianGrid stroke="var(--border)" vertical={false} />
         <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
         <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
@@ -282,7 +318,7 @@ function FlexibleChart({ data, style, chartId }) {
   );
 }
 
-export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '' }) {
+export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '', sideLegend = false }) {
   return (
     <div className={`card chart-card ${className}`.trim()}>
       <div className="card-header chart-header">
@@ -302,7 +338,7 @@ export function ChartCard({ title, chartId, data, style, onStyleChange, footer, 
           </select>
         </label>
       </div>
-      <FlexibleChart data={data} style={style} chartId={chartId} />
+      <FlexibleChart data={data} style={style} chartId={chartId} sideLegend={sideLegend} />
       {footer}
     </div>
   );

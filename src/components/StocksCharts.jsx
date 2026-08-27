@@ -22,6 +22,10 @@ const DEFAULT_STYLES = {
   pl: 'hbar',
 };
 
+function validCustomColor(value) {
+  return /^#[0-9a-f]{6}$/i.test(String(value || '')) ? value : null;
+}
+
 function holdingCost(h) {
   return Number(h.avgBuy || 0) * Number(h.shares || 0);
 }
@@ -78,7 +82,14 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         if (!label || label === '—') continue;
         const cost = holdingCost(h);
         const value = holdingValue(h, quotes);
-        const prev = bySym.get(label) || { name: label, value: 0, cost: 0, pl: 0 };
+        const prev = bySym.get(label) || {
+          name: label,
+          value: 0,
+          cost: 0,
+          pl: 0,
+          color: validCustomColor(h.customColor),
+        };
+        prev.color ||= validCustomColor(h.customColor);
         prev.value += value;
         prev.cost += cost;
         prev.pl += value - cost;
@@ -92,7 +103,7 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
       .map((d, i) => ({
         name: d.name,
         value: d.value,
-        color: PALETTE[i % PALETTE.length],
+        color: d.color || PALETTE[i % PALETTE.length],
       }));
 
     if (cash > 0) {
@@ -185,6 +196,7 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         style={styles.holdings}
         onStyleChange={(v) => setStyle('holdings', v)}
         className="nested-chart-card"
+        sideLegend
       />
       <ChartCard
         title={middle.title}
