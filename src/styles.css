@@ -2499,4 +2499,154 @@ input[type='number'] {
 @media (max-width: 720px) {
   .insights-card .portfolio-card-head { display: flex; flex-direction: column; }
   .insights-card .portfolio-cash-row { width: 100%; }
+
+  .insights-card > .card-header {
+    gap: 12px;
+  }
+
+  .insights-card > .card-header > div:first-child,
+  .insights-card .card-header-actions,
+  .insights-card .portfolio-meta-row,
+  .insights-card .portfolio-card-head > .cell-input {
+    width: 100%;
+    max-width: none;
+  }
+
+  .insights-card .card-header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .insights-card .card-header-actions .btn {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 10px;
+  }
+
+  .insights-card .insight-stat {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .insights-card .insight-stat .stat-value {
+    overflow-wrap: anywhere;
+    font-size: clamp(20px, 6vw, 25px);
+  }
+
+  .insights-card .insight-stat .stat-sub {
+    white-space: normal;
+  }
+
+  .insights-card .nested-chart-card.card {
+    min-height: 0;
+    padding: 10px;
+  }
+
+  .insights-card .chart-side-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-card .chart-side-legend {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px 10px;
+    padding: 0 8px 4px;
+  }
+
+  .insights-card .portfolio-card {
+    padding: 10px;
+  }
+
+  .insights-card .portfolio-meta-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .insights-card .portfolio-meta-row .cell-input {
+    width: 100%;
+    max-width: none;
+  }
+
+  .insights-card .portfolio-cash-row {
+    min-width: 0;
+  }
+
+  .insights-card .portfolio-summary-line {
+    gap: 6px 10px;
+  }
+
+  .insights-card .portfolio-summary-line span:not(:last-child)::after {
+    display: none;
+  }
+
+  .insights-card .portfolio-card .table-wrap {
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .insights-card .holdings-table {
+    min-width: 580px;
+  }
+
+  .insights-card .holdings-table th,
+  .insights-card .holdings-table td {
+    padding: 8px 7px;
+  }
+
+  .insights-card .holdings-table .cell-input.name {
+    width: 4.5rem;
+    min-width: 4.5rem;
+  }
+
+  .insights-card .holdings-table .cell-input.num {
+    width: 4rem;
+    min-width: 4rem;
+  }
+
+  .insights-card .holdings-table .empty-row {
+    text-align: left;
+  }
+
+  .insights-card .stock-name-cell {
+    gap: 5px;
+  }
+
+  .insights-card .stock-logo {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+@media (max-width: 420px) {
+  .page {
+    padding-inline: 10px;
+  }
+
+  .insights-card > .card-header h2 {
+    font-size: 21px;
+  }
+
+  .insights-card .card-note {
+    line-height: 1.45;
+  }
+
+  .insights-card .insight-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-card .insight-stats .insight-stat-primary {
+    grid-column: auto;
+  }
+
+  .insights-card .insight-stat {
+    min-height: 76px;
+  }
+
+  .insights-card .chart-side-legend {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-card .portfolio-meta-row {
+    grid-template-columns: 1fr;
+  }
 }

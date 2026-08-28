@@ -372,11 +372,15 @@ function normalizeTarget(t) {
 function normalizeHolding(h, { swapAvgAndShares = false } = {}) {
   const avgBuy = Number(h.avgBuy ?? 0);
   const shares = Number(h.shares ?? 0);
+  const customColor = /^#[0-9a-f]{6}$/i.test(String(h.customColor || ''))
+    ? h.customColor
+    : undefined;
   return {
     id: h.id || Math.random().toString(36).slice(2, 10),
     name: h.name || '',
     avgBuy: swapAvgAndShares ? shares : avgBuy,
     shares: swapAvgAndShares ? avgBuy : shares,
+    ...(customColor ? { customColor } : {}),
   };
 }
 
