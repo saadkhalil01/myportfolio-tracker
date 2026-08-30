@@ -32,6 +32,7 @@ import AuthBar from './components/AuthBar.jsx';
 import SyncStatus from './components/SyncStatus.jsx';
 import PortfolioHealth from './components/PortfolioHealth.jsx';
 import { useGoldRate } from './goldRate.js';
+import AppIcon from './components/AppIcon.jsx';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview' },
@@ -360,6 +361,7 @@ export default function App() {
               onClick={() => setTab(item.id)}
               aria-current={tab === item.id ? 'page' : undefined}
             >
+              <AppIcon name={item.id} size={18} />
               {item.label}
             </button>
           ))}
@@ -370,6 +372,9 @@ export default function App() {
             onImport={() => fileInputRef.current?.click()}
             onReset={() => setResetStep(1)}
             resetting={resetting}
+            navItems={NAV_ITEMS}
+            activeTab={tab}
+            onNavigate={setTab}
           />
           <input
             ref={fileInputRef}
@@ -452,6 +457,7 @@ export default function App() {
             quotes={quotes}
             quoteStatus={quoteStatus}
             quoteUpdatedAt={quoteUpdatedAt}
+            dividendReinvested={data.dividendReinvested}
             onChange={(portfolios) => setData((prev) => ({ ...prev, portfolios }))}
             onRefreshQuotes={() => setQuoteRefreshKey((k) => k + 1)}
           />

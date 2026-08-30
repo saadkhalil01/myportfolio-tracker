@@ -1,5 +1,6 @@
 import { fmt, uid } from '../storage.js';
 import MoneyInput from './MoneyInput.jsx';
+import AppIcon from './AppIcon.jsx';
 
 export default function Liabilities({ liabilities, onChange }) {
   const total = liabilities.reduce((s, l) => s + Number(l.amount || 0), 0);
@@ -19,10 +20,10 @@ export default function Liabilities({ liabilities, onChange }) {
           <p className="card-note">People and loans you owe — amounts in PKR.</p>
         </div>
         <button
-          className="btn btn-ghost"
+          className="btn btn-ghost btn-add"
           onClick={() => onChange([...liabilities, { id: uid(), name: 'New liability', amount: 0 }])}
         >
-          + Add
+          <AppIcon name="add" size={18} /> Add
         </button>
       </div>
 
@@ -49,7 +50,7 @@ export default function Liabilities({ liabilities, onChange }) {
                   title="Remove"
                   onClick={() => onChange(liabilities.filter((x) => x.id !== l.id))}
                 >
-                  ✕
+                  <AppIcon name="remove" size={16} />
                 </button>
               </li>
             ))}

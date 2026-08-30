@@ -183,6 +183,12 @@ textarea {
   color: var(--text-secondary);
 }
 
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .auth-muted {
   font-size: 12px;
   color: var(--text-muted);
@@ -269,6 +275,10 @@ textarea {
 
 .header-menu-panel .menu-danger {
   color: var(--red);
+}
+
+.mobile-menu-nav {
+  display: none;
 }
 
 .header-menu-panel button:disabled {
@@ -898,12 +908,63 @@ body {
 }
 .insight-stat-icon svg { width: 29px; height: 29px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .insight-stat-icon.icon-cash { color: #f3b13b; background: linear-gradient(135deg, rgba(197, 126, 23, .35), rgba(98, 64, 17, .24)); }
+.insight-stat-icon.icon-dividend { color: #79d96b; background: linear-gradient(135deg, rgba(70, 173, 79, .3), rgba(31, 91, 40, .24)); }
 .insight-stat .stat-label { margin-bottom: 2px; color: #aeb8bc; font-size: 13px; text-transform: none; letter-spacing: 0; }
 .insight-stat .stat-value,
 .insight-stat:not(.insight-stat-primary) .stat-value,
 .insight-stat-primary .stat-value { color: #f7f8f8; font-size: 27px; line-height: 1.05; }
 .insight-stat small { margin-top: 2px; color: #9ba6aa; font-size: 11px; }
 .insight-stat .stat-sub { margin-top: 2px; font-size: 11px; white-space: nowrap; }
+
+.nav-link,
+.btn,
+.btn-icon,
+.header-menu-panel button {
+  align-items: center;
+}
+
+.nav-link,
+.btn,
+.header-menu-panel button {
+  gap: 7px;
+}
+
+.nav-link,
+.btn {
+  display: inline-flex;
+  line-height: 1.2;
+}
+
+.nav-link svg,
+.btn svg {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.btn-icon {
+  justify-content: center;
+}
+
+.btn.btn-add {
+  justify-content: center;
+  border-color: rgba(39, 212, 177, 0.48);
+  border-radius: 10px;
+  background: rgba(39, 212, 177, 0.14);
+  color: #49dfc0;
+  box-shadow: inset 0 0 0 1px rgba(39, 212, 177, 0.05);
+}
+
+.btn.btn-add svg {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.btn.btn-add:hover {
+  border-color: rgba(73, 223, 192, 0.72);
+  background: rgba(39, 212, 177, 0.24);
+  color: #79ead3;
+}
 
 .stock-insight-charts { margin-bottom: 12px; gap: 12px; }
 .insights-card .nested-chart-card { min-height: 250px; padding: 12px 14px; background: linear-gradient(145deg, #101c22, #0a151a); border-color: #304048; border-radius: 10px; }
@@ -1870,7 +1931,7 @@ input[type='number'] {
 
 .insight-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
   margin: 4px 0 18px;
 }
@@ -2324,6 +2385,91 @@ input[type='number'] {
   table-layout: fixed;
 }
 
+/* ---------- tablet navigation ---------- */
+@media (max-width: 980px) {
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+
+  .brand,
+  .topbar-actions,
+  .auth-bar {
+    width: 100%;
+  }
+
+  .topbar-actions {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+
+  .navbar {
+    display: none;
+  }
+
+  .auth-bar {
+    margin-right: 0;
+  }
+
+  .btn-google {
+    margin-right: auto;
+  }
+
+  .header-menu {
+    margin-left: auto;
+  }
+
+  .auth-bar-user {
+    display: flex;
+    flex-direction: row-reverse;
+    width: auto;
+    margin-left: auto;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .auth-bar-user .header-menu {
+    margin-left: 0;
+  }
+
+  .auth-bar-user .profile-summary {
+    justify-content: center;
+  }
+
+  .topbar:has(.auth-bar-user) {
+    flex-wrap: nowrap;
+  }
+
+  .topbar:has(.auth-bar-user) .brand {
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+  .topbar:has(.auth-bar-user) .topbar-actions {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .header-menu-panel {
+    width: min(260px, calc(100vw - 24px));
+  }
+
+  .mobile-menu-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mobile-menu-nav button.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+
 /* ---------- mobile ---------- */
 @media (max-width: 600px) {
   .app {
@@ -2359,25 +2505,47 @@ input[type='number'] {
 
   .topbar-actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .navbar {
-    width: 100%;
-    padding: 3px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-  }
-
-  .navbar::-webkit-scrollbar {
     display: none;
   }
 
-  .nav-link {
-    flex: 0 0 auto;
-    min-height: 40px;
-    padding: 9px 13px;
-    scroll-snap-align: start;
+  .auth-bar {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .auth-bar.auth-bar-user {
+    width: auto;
+    margin-left: auto;
+  }
+
+  .btn-google {
+    margin-right: auto;
+  }
+
+  .header-menu {
+    margin-left: auto;
+  }
+
+  .header-menu-panel {
+    width: min(260px, calc(100vw - 24px));
+  }
+
+  .mobile-menu-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mobile-menu-nav button.active {
+    background: var(--accent-soft);
+    color: var(--accent);
   }
 
   .card {

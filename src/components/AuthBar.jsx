@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useAuth } from '../AuthContext.jsx';
+import AppIcon from './AppIcon.jsx';
 
 function GoogleIcon() {
   return (
@@ -24,17 +25,17 @@ function GoogleIcon() {
   );
 }
 
-function MenuIcon({ type }) {
-  const paths = {
-    export: <><path d="M12 3v12" /><path d="m7 8 5-5 5 5" /><path d="M5 13v6h14v-6" /></>,
-    import: <><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 19h14" /></>,
-    reset: <><path d="M4 7v5h5" /><path d="M5.5 16a8 8 0 1 0 .5-9l-2 2" /></>,
-    signout: <><path d="M10 5H5v14h5" /><path d="M14 8l4 4-4 4" /><path d="M9 12h9" /></>,
-  };
-  return <svg className="header-menu-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[type]}</svg>;
-}
-
-function HeaderActionsMenu({ onExport, onImport, onReset, onSignOut, busy, resetting }) {
+function HeaderActionsMenu({
+  onExport,
+  onImport,
+  onReset,
+  onSignOut,
+  busy,
+  resetting,
+  navItems = [],
+  activeTab,
+  onNavigate,
+}) {
   const menuRef = useRef(null);
   const run = (action) => {
     menuRef.current?.removeAttribute('open');
@@ -44,21 +45,33 @@ function HeaderActionsMenu({ onExport, onImport, onReset, onSignOut, busy, reset
   return (
     <details className="header-menu" ref={menuRef}>
       <summary className="btn header-menu-trigger" aria-label="Open account and portfolio menu">
-        <span aria-hidden="true">☰</span>
+        <AppIcon name="menu" size={22} />
       </summary>
       <div className="header-menu-panel">
+        <div className="mobile-menu-nav" aria-label="Mobile navigation">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={activeTab === item.id ? 'active' : ''}
+              onClick={() => run(() => onNavigate?.(item.id))}
+            >
+              <AppIcon name={item.id} /> {item.label}
+            </button>
+          ))}
+        </div>
         <button type="button" onClick={() => run(onExport)}>
-          <MenuIcon type="export" /> Export portfolio
+          <AppIcon name="export" className="header-menu-icon" /> Export portfolio
         </button>
         <button type="button" onClick={() => run(onImport)}>
-          <MenuIcon type="import" /> Import portfolio
+          <AppIcon name="import" className="header-menu-icon" /> Import portfolio
         </button>
         <button type="button" className="menu-danger" disabled={resetting} onClick={() => run(onReset)}>
-          <MenuIcon type="reset" /> Reset portfolio
+          <AppIcon name="reset" className="header-menu-icon" /> Reset portfolio
         </button>
         {onSignOut ? (
           <button type="button" disabled={busy} onClick={() => run(onSignOut)}>
-            <MenuIcon type="signout" /> Sign out
+            <AppIcon name="signout" className="header-menu-icon" /> Sign out
           </button>
         ) : null}
       </div>
@@ -66,7 +79,15 @@ function HeaderActionsMenu({ onExport, onImport, onReset, onSignOut, busy, reset
   );
 }
 
-export default function AuthBar({ onExport, onImport, onReset, resetting = false }) {
+export default function AuthBar({
+  onExport,
+  onImport,
+  onReset,
+  resetting = false,
+  navItems,
+  activeTab,
+  onNavigate,
+}) {
   const { user, loading, configured, signInWithGoogle, signOut } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -75,7 +96,7 @@ export default function AuthBar({ onExport, onImport, onReset, resetting = false
     return (
       <div className="auth-bar">
         <span className="auth-muted">Cloud sync offline</span>
-        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting }} />
+        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, navItems, activeTab, onNavigate }} />
       </div>
     );
   }
@@ -84,7 +105,7 @@ export default function AuthBar({ onExport, onImport, onReset, resetting = false
     return (
       <div className="auth-bar">
         <span className="auth-muted">Checking account…</span>
-        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting }} />
+        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, navItems, activeTab, onNavigate }} />
       </div>
     );
   }
@@ -116,13 +137,19 @@ export default function AuthBar({ onExport, onImport, onReset, resetting = false
     const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email;
     const avatar = user.user_metadata?.avatar_url;
     return (
-      <div className="auth-bar">
-        {avatar ? <img className="auth-avatar" src={avatar} alt="" /> : null}
-        <span className="auth-user" title={user.email}>
-          {name}
-        </span>
+      <div className="auth-bar auth-bar-user">
+        <div className="profile-summary">
+          {avatar ? (
+            <img className="auth-avatar" src={avatar} alt="" />
+          ) : (
+            <AppIcon name="profile" size={30} className="auth-avatar-icon" />
+          )}
+          <span className="auth-user" title={user.email}>
+            {name}
+          </span>
+        </div>
         <HeaderActionsMenu
-          {...{ onExport, onImport, onReset, resetting, busy }}
+          {...{ onExport, onImport, onReset, resetting, busy, navItems, activeTab, onNavigate }}
           onSignOut={handleSignOut}
         />
         {error ? <span className="auth-error">{error}</span> : null}
@@ -136,7 +163,7 @@ export default function AuthBar({ onExport, onImport, onReset, resetting = false
         <GoogleIcon />
         Sign in with Google
       </button>
-      <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, busy }} />
+      <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, busy, navItems, activeTab, onNavigate }} />
       {error ? <span className="auth-error">{error}</span> : null}
     </div>
   );

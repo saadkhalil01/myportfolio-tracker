@@ -9,6 +9,7 @@ import {
 } from '../storage.js';
 import { categoryColor, INVESTMENT_CATEGORY_OPTIONS } from '../categoryColors.js';
 import { isSavingsInvestment } from '../investmentClassification.js';
+import AppIcon from './AppIcon.jsx';
 
 export default function CategoriesTable({
   categories,
@@ -98,12 +99,12 @@ export default function CategoriesTable({
         <h2>Investments</h2>
         <div className="category-add-controls">
           <button
-            className="btn btn-ghost"
+            className="btn btn-ghost btn-add"
             aria-expanded={showCategoryMenu}
             aria-controls="investment-category-menu"
             onClick={() => setShowCategoryMenu((visible) => !visible)}
           >
-            + Add category
+            <AppIcon name="add" size={18} /> Add category
           </button>
           {showCategoryMenu && (
             <div id="investment-category-menu" className="category-menu">
@@ -272,10 +273,10 @@ export default function CategoriesTable({
                       aria-label={`More options for ${c.name || 'investment'}`}
                       onClick={() => setSettingsCategoryId(c.id)}
                     >
-                      ⋮
+                      <AppIcon name="more" size={18} />
                     </button>
                     <button className="btn-icon" title="Remove" onClick={() => removeRow(c.id)}>
-                      ✕
+                      <AppIcon name="remove" size={16} />
                     </button>
                   </td>
                 </tr>
@@ -311,7 +312,7 @@ export default function CategoriesTable({
                 aria-label="Close investment options"
                 onClick={() => setSettingsCategoryId(null)}
               >
-                ✕
+                <AppIcon name="remove" size={16} />
               </button>
             </div>
             <label className="modal-savings-option">

@@ -1,4 +1,5 @@
 import { fmt, uid, numberInputValue } from '../storage.js';
+import AppIcon from './AppIcon.jsx';
 
 function progressPct(targetAmount, available) {
   const target = Number(targetAmount || 0);
@@ -32,8 +33,8 @@ export default function Targets({ targets, availableFunds, onChange }) {
             Able to buy uses savings & investments excluding pension ({fmt(availableFunds)})
           </p>
         </div>
-        <button className="btn btn-ghost" onClick={addRow}>
-          + Add
+        <button className="btn btn-ghost btn-add" onClick={addRow}>
+          <AppIcon name="add" size={18} /> Add
         </button>
       </div>
       {targets.length === 0 ? (
@@ -110,7 +111,7 @@ export default function Targets({ targets, availableFunds, onChange }) {
                         title="Remove"
                         onClick={() => onChange(targets.filter((x) => x.id !== t.id))}
                       >
-                        ✕
+                        <AppIcon name="remove" size={16} />
                       </button>
                     </td>
                   </tr>

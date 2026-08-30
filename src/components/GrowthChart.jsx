@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   ReferenceLine,
 } from 'recharts';
+import AppIcon from './AppIcon.jsx';
 import { fmt, fmtPct, uid, growthStats, todayISO } from '../storage.js';
 
 const tooltipStyle = {
@@ -204,7 +205,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
             value={draft.value}
             onChange={(e) => setDraft({ ...draft, value: e.target.value })}
           />
-          <button className="btn" onClick={addPoint} disabled={!draft.date || draft.value === ''}>
+          <button className="btn btn-add" onClick={addPoint} disabled={!draft.date || draft.value === ''}>
             Add point
           </button>
         </div>
@@ -230,7 +231,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
                         title="Remove point"
                         onClick={() => removePoint(p.date)}
                       >
-                        ✕
+                        <AppIcon name="remove" size={16} />
                       </button>
                     </td>
                   </tr>

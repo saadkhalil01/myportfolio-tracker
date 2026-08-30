@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fmt } from '../storage.js';
+import AppIcon from './AppIcon.jsx';
 import { isSavingsInvestment } from '../investmentClassification.js';
 
 const clamp = (value) => Math.min(100, Math.max(0, value));
@@ -218,7 +219,7 @@ export default function PortfolioHealth({ categories, totals, liabilitiesTotal }
                 aria-label="Close savings information"
                 onClick={() => setShowSavingsInfo(false)}
               >
-                ✕
+                <AppIcon name="remove" size={16} />
               </button>
             </div>
 

@@ -4,6 +4,7 @@ import { normalizeSymbol } from '../psxQuotes.js';
 import MoneyInput from './MoneyInput.jsx';
 import StockLogo from './StockLogo.jsx';
 import StocksCharts from './StocksCharts.jsx';
+import AppIcon from './AppIcon.jsx';
 
 const STRATEGIES = [
   { id: 'dividend', label: 'Dividend' },
@@ -38,16 +39,6 @@ const fmtPrice = (n, digits = 2) =>
 
 function holdingCost(h) {
   return Number(h.avgBuy || 0) * Number(h.shares || 0);
-}
-
-function StatIcon({ type }) {
-  const paths = {
-    portfolios: <><path d="M3 8h7l2 2h9v10H3z" /><path d="M3 8V5h7l2 2h7" /></>,
-    stocks: <><path d="m4 17 5-5 4 3 7-9" /><path d="M15 6h5v5" /><path d="M4 21h16" /></>,
-    cash: <><path d="M5 7h13a3 3 0 0 1 3 3v9H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12" /><path d="M16 11h5v5h-5a2.5 2.5 0 0 1 0-5z" /></>,
-    value: <><path d="m4 17 5-5 4 3 7-9" /><path d="M15 6h5v5" /></>,
-  };
-  return <span className={`insight-stat-icon icon-${type}`}><svg viewBox="0 0 24 24" aria-hidden="true">{paths[type]}</svg></span>;
 }
 
 function portfolioStockCost(p) {
@@ -121,6 +112,7 @@ export default function StocksBreakdown({
   quoteStatus = 'idle',
   quoteUpdatedAt = null,
   onRefreshQuotes,
+  dividendReinvested = 0,
 }) {
   const [sortBy, setSortBy] = useState('value');
   const [sortDir, setSortDir] = useState('desc');
@@ -271,7 +263,8 @@ export default function StocksBreakdown({
               title={sortDir === 'asc' ? 'Ascending' : 'Descending'}
               onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
             >
-              {sortDir === 'asc' ? '↑ Asc' : '↓ Desc'}
+              <AppIcon name={sortDir === 'asc' ? 'up' : 'down'} size={16} />
+              {sortDir === 'asc' ? 'Asc' : 'Desc'}
             </button>
           </label>
           <button
@@ -280,39 +273,50 @@ export default function StocksBreakdown({
             disabled={quoteStatus === 'loading' || !symbols.length}
             onClick={() => onRefreshQuotes?.()}
           >
-            ↻&nbsp;&nbsp; Refresh prices
+            <AppIcon name="refresh" size={18} /> Refresh prices
           </button>
-          <button type="button" className="btn btn-add-portfolio" onClick={addPortfolio}>
-            + Add portfolio
+          <button type="button" className="btn btn-add btn-add-portfolio" onClick={addPortfolio}>
+            <AppIcon name="add" size={18} /> Add portfolio
           </button>
         </div>
       </div>
 
       <div className="insight-stats">
         <div className="insight-stat">
-          <StatIcon type="portfolios" />
+          <span className="insight-stat-icon"><AppIcon name="portfolios" size={29} /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Portfolios</span>
           <span className="stat-value">{totalPortfolios}</span>
           </div>
         </div>
         <div className="insight-stat">
-          <StatIcon type="stocks" />
+          <span className="insight-stat-icon"><AppIcon name="stocks" size={29} /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Stocks held</span>
           <span className="stat-value">{totalHoldings}</span>
           </div>
         </div>
         <div className="insight-stat">
-          <StatIcon type="cash" />
+          <span className="insight-stat-icon icon-cash"><AppIcon name="cash" size={29} /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Cash</span>
           <span className="stat-value">{fmt(totalCash)}</span>
           <small>PKR</small>
           </div>
         </div>
+        <div className="insight-stat">
+          <span className="insight-stat-icon icon-dividend"><AppIcon name="dividend" size={29} /></span>
+          <div className="insight-stat-copy">
+          <span className="stat-label">Dividend reinvested</span>
+          <span className="stat-value">{fmt(dividendReinvested)}</span>
+          <small>PKR earned by stocks</small>
+          <span className="stat-sub">
+            Yield on cost {totalStockCost > 0 ? ((Number(dividendReinvested) / totalStockCost) * 100).toFixed(2) : '0.00'}%
+          </span>
+          </div>
+        </div>
         <div className="insight-stat insight-stat-primary">
-          <StatIcon type="value" />
+          <span className="insight-stat-icon"><AppIcon name="value" size={29} /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Market value</span>
           <span className="stat-value">{fmt(totalDisplayValue)}</span>
@@ -367,7 +371,7 @@ export default function StocksBreakdown({
                       title="Remove portfolio"
                       onClick={() => removePortfolio(p.id)}
                     >
-                      ✕
+                      <AppIcon name="remove" size={16} />
                     </button>
                   )}
                 </div>
@@ -546,7 +550,7 @@ export default function StocksBreakdown({
                                 title="Remove stock"
                                 onClick={() => removeHolding(p.id, h.id)}
                               >
-                                ✕
+                                <AppIcon name="remove" size={16} />
                               </button>
                             </td>
                           </tr>
@@ -559,10 +563,10 @@ export default function StocksBreakdown({
 
               <button
                 type="button"
-                className="btn btn-ghost small add-holding"
+                className="btn btn-ghost btn-add small add-holding"
                 onClick={() => addHolding(p.id)}
               >
-                + Add stock
+                <AppIcon name="add" size={18} /> Add stock
               </button>
             </article>
           );
