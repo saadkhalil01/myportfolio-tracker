@@ -5,6 +5,7 @@ import MoneyInput from './MoneyInput.jsx';
 import StockLogo from './StockLogo.jsx';
 import StocksCharts from './StocksCharts.jsx';
 import AppIcon from './AppIcon.jsx';
+import PortfolioHeader from './PortfolioHeader.jsx';
 
 const STRATEGIES = [
   { id: 'dividend', label: 'Dividend' },
@@ -283,21 +284,21 @@ export default function StocksBreakdown({
 
       <div className="insight-stats">
         <div className="insight-stat">
-          <span className="insight-stat-icon"><AppIcon name="portfolios" size={29} /></span>
+          <span className="insight-stat-icon"><AppIcon name="portfolios" size={29} weight="fill" /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Portfolios</span>
           <span className="stat-value">{totalPortfolios}</span>
           </div>
         </div>
         <div className="insight-stat">
-          <span className="insight-stat-icon"><AppIcon name="stocks" size={29} /></span>
+          <span className="insight-stat-icon"><AppIcon name="stocks" size={29} weight="fill" /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Stocks held</span>
           <span className="stat-value">{totalHoldings}</span>
           </div>
         </div>
         <div className="insight-stat">
-          <span className="insight-stat-icon icon-cash"><AppIcon name="cash" size={29} /></span>
+          <span className="insight-stat-icon icon-cash"><AppIcon name="cash" size={29} weight="fill" /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Cash</span>
           <span className="stat-value">{fmt(totalCash)}</span>
@@ -305,7 +306,7 @@ export default function StocksBreakdown({
           </div>
         </div>
         <div className="insight-stat">
-          <span className="insight-stat-icon icon-dividend"><AppIcon name="dividend" size={29} /></span>
+          <span className="insight-stat-icon icon-dividend"><AppIcon name="dividend" size={29} weight="fill" /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Dividend reinvested</span>
           <span className="stat-value">{fmt(dividendReinvested)}</span>
@@ -316,7 +317,7 @@ export default function StocksBreakdown({
           </div>
         </div>
         <div className="insight-stat insight-stat-primary">
-          <span className="insight-stat-icon"><AppIcon name="value" size={29} /></span>
+          <span className="insight-stat-icon"><AppIcon name="value" size={29} weight="fill" /></span>
           <div className="insight-stat-copy">
           <span className="stat-label">Market value</span>
           <span className="stat-value">{fmt(totalDisplayValue)}</span>
@@ -356,61 +357,14 @@ export default function StocksBreakdown({
 
           return (
             <article key={p.id} className="portfolio-card">
+              <PortfolioHeader
+                portfolio={p}
+                cash={cash}
+                strategies={STRATEGIES}
+                onUpdate={(patch) => updatePortfolio(p.id, patch)}
+                onRemove={portfolios.length > 1 ? () => removePortfolio(p.id) : undefined}
+              />
               <div className="portfolio-card-head">
-                <div className="portfolio-title-row">
-                  <input
-                    className="cell-input name portfolio-name"
-                    value={p.name}
-                    onChange={(e) => updatePortfolio(p.id, { name: e.target.value })}
-                    placeholder="Portfolio name"
-                  />
-                  {portfolios.length > 1 && (
-                    <button
-                      type="button"
-                      className="btn-icon always-visible"
-                      title="Remove portfolio"
-                      onClick={() => removePortfolio(p.id)}
-                    >
-                      <AppIcon name="remove" size={16} />
-                    </button>
-                  )}
-                </div>
-                <div className="portfolio-meta-row">
-                  <input
-                    className="cell-input"
-                    value={p.broker}
-                    onChange={(e) => updatePortfolio(p.id, { broker: e.target.value })}
-                    placeholder="Broker"
-                  />
-                  <select
-                    className="cell-input"
-                    value={p.strategy}
-                    onChange={(e) => updatePortfolio(p.id, { strategy: e.target.value })}
-                  >
-                    {STRATEGIES.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <input
-                  className="cell-input"
-                  value={p.goal}
-                  onChange={(e) => updatePortfolio(p.id, { goal: e.target.value })}
-                  placeholder="Goal / notes"
-                />
-                <div className="portfolio-cash-row">
-                  <label className="cash-label" htmlFor={`cash-${p.id}`}>
-                    Cash
-                  </label>
-                  <MoneyInput
-                    id={`cash-${p.id}`}
-                    value={cash}
-                    onChange={(value) => updatePortfolio(p.id, { cash: value })}
-                    aria-label={`${p.name || 'Portfolio'} cash`}
-                  />
-                </div>
                 <div className="portfolio-summary-line">
                   <span>Value {fmt(portfolioMarket)}</span>
                   <span>Cost {fmt(stockCost)}</span>

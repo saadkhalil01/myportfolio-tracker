@@ -906,7 +906,7 @@ body {
   color: #53d6bc;
   background: linear-gradient(135deg, rgba(61, 197, 172, .22), rgba(25, 94, 84, .25));
 }
-.insight-stat-icon svg { width: 29px; height: 29px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.insight-stat-icon svg { width: 29px; height: 29px; fill: currentColor; stroke: none; }
 .insight-stat-icon.icon-cash { color: #f3b13b; background: linear-gradient(135deg, rgba(197, 126, 23, .35), rgba(98, 64, 17, .24)); }
 .insight-stat-icon.icon-dividend { color: #79d96b; background: linear-gradient(135deg, rgba(70, 173, 79, .3), rgba(31, 91, 40, .24)); }
 .insight-stat .stat-label { margin-bottom: 2px; color: #aeb8bc; font-size: 13px; text-transform: none; letter-spacing: 0; }
