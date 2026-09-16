@@ -25,16 +25,35 @@ function GoogleIcon() {
   );
 }
 
+function ThemeToggle({ theme, onToggleTheme }) {
+  const nextTheme = theme === 'dark' ? 'light' : 'dark';
+  return (
+    <button
+      type="button"
+      className="btn theme-toggle"
+      onClick={onToggleTheme}
+      aria-label={`Switch to ${nextTheme} theme`}
+      title={`Switch to ${nextTheme} theme`}
+    >
+      <AppIcon name={nextTheme} size={19} weight="bold" />
+      <span>Switch to {nextTheme} mode</span>
+    </button>
+  );
+}
+
 function HeaderActionsMenu({
   onExport,
   onImport,
   onReset,
+  onSignIn,
   onSignOut,
   busy,
   resetting,
   navItems = [],
   activeTab,
   onNavigate,
+  theme,
+  onToggleTheme,
 }) {
   const menuRef = useRef(null);
   const run = (action) => {
@@ -56,22 +75,28 @@ function HeaderActionsMenu({
               className={activeTab === item.id ? 'active' : ''}
               onClick={() => run(() => onNavigate?.(item.id))}
             >
-              <AppIcon name={item.id} /> {item.label}
+              <AppIcon name={item.id} weight="regular" /> {item.label}
             </button>
           ))}
         </div>
+        <ThemeToggle theme={theme} onToggleTheme={onToggleTheme} />
+        {onSignIn ? (
+          <button type="button" disabled={busy} onClick={() => run(onSignIn)}>
+            <GoogleIcon /> {busy ? 'Signing in…' : 'Sign in with Google'}
+          </button>
+        ) : null}
         <button type="button" onClick={() => run(onExport)}>
-          <AppIcon name="export" className="header-menu-icon" /> Export portfolio
+          <AppIcon name="export" weight="regular" className="header-menu-icon" /> Export portfolio
         </button>
         <button type="button" onClick={() => run(onImport)}>
-          <AppIcon name="import" className="header-menu-icon" /> Import portfolio
+          <AppIcon name="import" weight="regular" className="header-menu-icon" /> Import portfolio
         </button>
         <button type="button" className="menu-danger" disabled={resetting} onClick={() => run(onReset)}>
-          <AppIcon name="reset" className="header-menu-icon" /> Reset portfolio
+          <AppIcon name="reset" weight="regular" className="header-menu-icon" /> Reset portfolio
         </button>
         {onSignOut ? (
           <button type="button" disabled={busy} onClick={() => run(onSignOut)}>
-            <AppIcon name="signout" className="header-menu-icon" /> Sign out
+            <AppIcon name="signout" weight="regular" className="header-menu-icon" /> Sign out
           </button>
         ) : null}
       </div>
@@ -87,6 +112,8 @@ export default function AuthBar({
   navItems,
   activeTab,
   onNavigate,
+  theme,
+  onToggleTheme,
 }) {
   const { user, loading, configured, signInWithGoogle, signOut } = useAuth();
   const [busy, setBusy] = useState(false);
@@ -96,7 +123,7 @@ export default function AuthBar({
     return (
       <div className="auth-bar">
         <span className="auth-muted">Cloud sync offline</span>
-        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, navItems, activeTab, onNavigate }} />
+        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, navItems, activeTab, onNavigate, theme, onToggleTheme }} />
       </div>
     );
   }
@@ -105,7 +132,7 @@ export default function AuthBar({
     return (
       <div className="auth-bar">
         <span className="auth-muted">Checking account…</span>
-        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, navItems, activeTab, onNavigate }} />
+        <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, navItems, activeTab, onNavigate, theme, onToggleTheme }} />
       </div>
     );
   }
@@ -149,7 +176,7 @@ export default function AuthBar({
           </span>
         </div>
         <HeaderActionsMenu
-          {...{ onExport, onImport, onReset, resetting, busy, navItems, activeTab, onNavigate }}
+          {...{ onExport, onImport, onReset, resetting, busy, navItems, activeTab, onNavigate, theme, onToggleTheme }}
           onSignOut={handleSignOut}
         />
         {error ? <span className="auth-error">{error}</span> : null}
@@ -159,11 +186,10 @@ export default function AuthBar({
 
   return (
     <div className="auth-bar">
-      <button type="button" className="btn btn-google" disabled={busy} onClick={handleSignIn}>
-        <GoogleIcon />
-        Sign in with Google
-      </button>
-      <HeaderActionsMenu {...{ onExport, onImport, onReset, resetting, busy, navItems, activeTab, onNavigate }} />
+      <HeaderActionsMenu
+        {...{ onExport, onImport, onReset, resetting, busy, navItems, activeTab, onNavigate, theme, onToggleTheme }}
+        onSignIn={handleSignIn}
+      />
       {error ? <span className="auth-error">{error}</span> : null}
     </div>
   );

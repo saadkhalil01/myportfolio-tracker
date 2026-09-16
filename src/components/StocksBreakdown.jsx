@@ -3,6 +3,7 @@ import { fmt, uid, numberInputValue } from '../storage.js';
 import { normalizeSymbol } from '../psxQuotes.js';
 import MoneyInput from './MoneyInput.jsx';
 import StockLogo from './StockLogo.jsx';
+import StockCategorySelect from './StockCategorySelect.jsx';
 import StocksCharts from './StocksCharts.jsx';
 import AppIcon from './AppIcon.jsx';
 import PortfolioHeader from './PortfolioHeader.jsx';
@@ -184,7 +185,10 @@ export default function StocksBreakdown({
         p.id === portfolioId
           ? {
               ...p,
-              holdings: [...p.holdings, { id: uid(), name: '', avgBuy: 0, shares: 0 }],
+              holdings: [
+                ...p.holdings,
+                { id: uid(), name: '', category: '', avgBuy: 0, shares: 0 },
+              ],
             }
           : p
       )
@@ -274,7 +278,7 @@ export default function StocksBreakdown({
             disabled={quoteStatus === 'loading' || !symbols.length}
             onClick={() => onRefreshQuotes?.()}
           >
-            <AppIcon name="refresh" size={18} /> Refresh prices
+            <AppIcon name="refresh" size={18} weight="regular" /> Refresh prices
           </button>
           <button type="button" className="btn btn-add btn-add-portfolio" onClick={addPortfolio}>
             <AppIcon name="add" size={18} /> Add portfolio
@@ -432,6 +436,14 @@ export default function StocksBreakdown({
                                   />
                                 </label>
                                 <StockLogo name={h.name} />
+                                <StockCategorySelect
+                                  value={h.category}
+                                  stockName={h.name}
+                                  color={stockColor(h)}
+                                  onChange={(value) =>
+                                    updateHolding(p.id, h.id, 'category', value)
+                                  }
+                                />
                                 <input
                                   className="cell-input name"
                                   value={h.name}

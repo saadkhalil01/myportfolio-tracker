@@ -369,6 +369,26 @@ function normalizeTarget(t) {
   };
 }
 
+const STOCK_CATEGORY_IDS = new Set([
+  'tractor',
+  'tyre',
+  'transportation',
+  'fuel',
+  'oilGas',
+  'plants',
+  'soil',
+  'fertilizers',
+  'sprout',
+  'engine',
+  'cars',
+  'electricity',
+  'chemicals',
+  'waving',
+  'cement',
+  'banks',
+  'merchantAccounts',
+]);
+
 function normalizeHolding(h, { swapAvgAndShares = false } = {}) {
   const avgBuy = Number(h.avgBuy ?? 0);
   const shares = Number(h.shares ?? 0);
@@ -378,6 +398,7 @@ function normalizeHolding(h, { swapAvgAndShares = false } = {}) {
   return {
     id: h.id || Math.random().toString(36).slice(2, 10),
     name: h.name || '',
+    category: STOCK_CATEGORY_IDS.has(h.category) ? h.category : '',
     avgBuy: swapAvgAndShares ? shares : avgBuy,
     shares: swapAvgAndShares ? avgBuy : shares,
     ...(customColor ? { customColor } : {}),

@@ -44,6 +44,15 @@ const NAV_ITEMS = [
 ];
 
 const NAV_STORAGE_KEY = 'myportfolio-active-tab-v2';
+const THEME_STORAGE_KEY = 'myportfolio-theme';
+
+function loadTheme() {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === 'light' ? 'light' : 'dark';
+  } catch {
+    return 'dark';
+  }
+}
 
 function loadTab() {
   try {
@@ -61,6 +70,7 @@ export default function App() {
 
   const [data, setData] = useState(() => loadData(null));
   const [tab, setTab] = useState(loadTab);
+  const [theme, setTheme] = useState(loadTheme);
   const [resetStep, setResetStep] = useState(0);
   const [resetting, setResetting] = useState(false);
   const [toast, setToast] = useState('');
@@ -166,6 +176,16 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(NAV_STORAGE_KEY, tab);
   }, [tab]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',
+      theme === 'light' ? '#ffffff' : '#071116'
+    );
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!toast) return undefined;
@@ -361,13 +381,15 @@ export default function App() {
               onClick={() => setTab(item.id)}
               aria-current={tab === item.id ? 'page' : undefined}
             >
-              <AppIcon name={item.id} size={18} />
+              <AppIcon name={item.id} size={18} weight="regular" />
               {item.label}
             </button>
           ))}
         </nav>
         <div className="topbar-actions">
           <AuthBar
+            theme={theme}
+            onToggleTheme={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
             onExport={() => exportData(data)}
             onImport={() => fileInputRef.current?.click()}
             onReset={() => setResetStep(1)}

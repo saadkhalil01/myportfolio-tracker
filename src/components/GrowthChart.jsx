@@ -13,11 +13,11 @@ import AppIcon from './AppIcon.jsx';
 import { fmt, fmtPct, uid, growthStats, todayISO } from '../storage.js';
 
 const tooltipStyle = {
-  background: '#ffffff',
-  border: '1px solid #d8dee8',
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
   borderRadius: 6,
-  color: '#1a2332',
-  boxShadow: '0 4px 12px rgba(26, 35, 50, 0.08)',
+  color: 'var(--text)',
+  boxShadow: 'var(--shadow)',
   fontFamily: "'Google Sans', system-ui, sans-serif",
   padding: '8px 12px',
   fontSize: 12,
@@ -33,9 +33,9 @@ function GrowthTooltip({ active, payload }) {
   const point = payload[0].payload;
   return (
     <div style={tooltipStyle}>
-      <div style={{ color: '#6b778c', marginBottom: 4 }}>{formatAxisDate(point.date)}</div>
+      <div style={{ color: 'var(--text-muted)', marginBottom: 4 }}>{formatAxisDate(point.date)}</div>
       <div>
-        <span style={{ color: '#6b778c' }}>Current value</span>
+        <span style={{ color: 'var(--text-muted)' }}>Current value</span>
         <span style={{ marginLeft: 8, fontWeight: 600 }}>{fmt(point.valuation)}</span>
       </div>
     </div>
@@ -94,7 +94,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
   };
 
   const axisTick = {
-    fill: '#6b778c',
+    fill: 'var(--text-muted)',
     fontSize: 11,
     fontFamily: 'Google Sans, system-ui, sans-serif',
   };
@@ -151,7 +151,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
                 <stop offset="100%" stopColor={stroke} stopOpacity={0.02} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="#eef1f5" vertical={false} />
+            <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
             <XAxis
               dataKey="date"
               tick={axisTick}
@@ -171,7 +171,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
             <Tooltip content={<GrowthTooltip />} />
             <ReferenceLine
               y={stats.start}
-              stroke="#c5cdd9"
+              stroke="var(--border-strong)"
               strokeDasharray="4 4"
               ifOverflow="extendDomain"
             />

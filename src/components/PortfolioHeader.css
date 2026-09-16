@@ -6,29 +6,52 @@
   padding: 12px 6px 10px;
 }
 .portfolio-editor-identity { grid-area: identity; display: flex; align-items: center; gap: 12px; min-width: 0; }
-.portfolio-editor-icon { display: grid; place-items: center; width: 46px; height: 46px; flex-shrink: 0; border-radius: 12px; background: #173b36; color: #63d3b4; }
-.portfolio-editor svg { fill: currentColor; stroke: none; }
+.portfolio-editor-icon { display: grid; place-items: center; width: 46px; height: 46px; flex-shrink: 0; border-radius: 12px; background: var(--portfolio-icon-bg); color: var(--accent); }
+.portfolio-editor svg { fill: none; stroke: currentColor; }
 .portfolio-editor-heading { min-width: 0; flex: 1; }
-.portfolio-editor-eyebrow { display: block; color: #8fa4ad; font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
-.portfolio-editor input, .portfolio-editor select { font: inherit; color: #e7eff1; border: 1px solid #34474f; border-radius: 7px; background: #101f26; min-width: 0; }
+.portfolio-editor-eyebrow { display: block; color: var(--text-muted); font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 3px; }
+.portfolio-editor input, .portfolio-editor select { font: inherit; color: var(--text); border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface-muted); min-width: 0; }
 .portfolio-editor .portfolio-editor-name { width: 100%; max-width: 580px; font-size: 20px; font-weight: 650; padding: 3px 5px; margin-left: -5px; background: transparent; border-color: transparent; }
-.portfolio-editor input:hover, .portfolio-editor select:hover { border-color: #55717a; }
-.portfolio-editor input:focus-visible, .portfolio-editor select:focus-visible, .portfolio-editor button:focus-visible { outline: 2px solid #63d3b4; outline-offset: 3px; }
+.portfolio-editor input:hover, .portfolio-editor select:hover { border-color: var(--accent); }
+.portfolio-editor input:focus-visible, .portfolio-editor select:focus-visible, .portfolio-editor button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .portfolio-editor-fields { grid-area: fields; display: flex; flex-wrap: wrap; gap: 12px; }
 .portfolio-editor-field { display: flex; flex-direction: column; gap: 5px; width: 180px; max-width: 100%; }
-.portfolio-editor-field > span, .portfolio-editor-goal > span { font-size: 11px; font-weight: 500; color: #9aadb5; }
+.portfolio-editor-field > span, .portfolio-editor-goal > span { font-size: 11px; font-weight: 500; color: var(--text-muted); }
 .portfolio-editor-field input, .portfolio-editor-field select { width: 100%; height: 36px; padding: 6px 10px; font-size: 13px; }
-.portfolio-editor-field select { cursor: pointer; color-scheme: dark; }
+.portfolio-editor-field select {
+  appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Cpath d='m4 5.5 3 3 3-3' stroke='%236b778c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  cursor: pointer;
+  color-scheme: inherit;
+}
+
+.portfolio-editor-field select:hover {
+  background-color: color-mix(in srgb, var(--surface-muted), var(--accent-soft) 35%);
+}
+
+.portfolio-editor-field select:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.portfolio-editor-field select option {
+  background: var(--surface);
+  color: var(--text);
+}
 .portfolio-editor-goal { grid-area: goal; display: flex; align-items: center; gap: 10px; min-width: 0; }
-.portfolio-editor-goal input { width: 100%; padding: 6px 8px; font-size: 13px; color: #b2c2c9; background: transparent; border-color: transparent; }
-.portfolio-editor input::placeholder { color: #768d97; }
-.portfolio-editor-cash { grid-area: cash; align-self: center; padding: 16px 18px; border: 1px solid #31534e; border-radius: 12px; background: linear-gradient(135deg, #15302d, #102025); }
-.portfolio-editor-cash label { display: flex; align-items: center; gap: 8px; color: #a9cebf; font-size: 12px; font-weight: 600; }
+.portfolio-editor-goal input { width: 100%; padding: 6px 8px; font-size: 13px; color: var(--text-secondary); background: transparent; border-color: transparent; }
+.portfolio-editor input::placeholder { color: var(--text-muted); }
+.portfolio-editor-cash { grid-area: cash; align-self: center; padding: 16px 18px; border: 1px solid var(--portfolio-cash-border); border-radius: 12px; background: var(--portfolio-cash-bg); }
+.portfolio-editor-cash label { display: flex; align-items: center; gap: 8px; color: var(--portfolio-cash-label); font-size: 12px; font-weight: 600; }
 .portfolio-editor-amount { display: flex; align-items: baseline; gap: 8px; margin: 9px 0 5px; }
-.portfolio-editor-amount > span { color: #8cac9f; font-size: 12px; }
-.portfolio-editor .portfolio-editor-amount .cell-input.num.money-input { width: 100%; min-width: 0; max-width: none; padding: 2px 4px; border-color: transparent; background: transparent; color: #f0faf5; font-size: 26px; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
-.portfolio-editor-cash small { display: block; color: #86a79b; font-size: 11px; }
-.portfolio-editor-remove { grid-area: remove; align-self: start; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid #2d4048; border-radius: 8px; background: transparent; color: #91a4ac; cursor: pointer; }
+.portfolio-editor-amount > span { color: var(--portfolio-cash-label); font-size: 12px; }
+.portfolio-editor .portfolio-editor-amount .cell-input.num.money-input { width: 100%; min-width: 0; max-width: none; padding: 2px 4px; border-color: transparent; background: transparent; color: var(--text); font-size: 26px; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
+.portfolio-editor-cash small { display: block; color: var(--text-muted); font-size: 11px; }
+.portfolio-editor-remove { grid-area: remove; align-self: start; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text-muted); cursor: pointer; }
 .portfolio-editor-remove:hover { color: #ffacae; border-color: #a45760; background: #39232b; }
 @media (max-width: 720px) {
   .portfolio-editor { grid-template-columns: minmax(0, 1fr) 32px; grid-template-areas: "identity remove" "fields fields" "goal goal" "cash cash"; gap: 14px 8px; padding: 6px 2px; }

@@ -16,6 +16,11 @@
   --red-soft: #fdeceb;
   --radius: 8px;
   --shadow: 0 1px 2px rgba(26, 35, 50, 0.04);
+  --chart-grid: #dfe5ec;
+  --portfolio-icon-bg: #dff5ef;
+  --portfolio-cash-bg: linear-gradient(135deg, #edf9f5, #f7fbfa);
+  --portfolio-cash-border: #b9ded3;
+  --portfolio-cash-label: #347766;
 }
 
 * {
@@ -261,11 +266,6 @@ textarea {
   width: 17px;
   height: 17px;
   flex: 0 0 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .header-menu-panel button:hover {
@@ -765,6 +765,11 @@ li:hover .btn-icon {
   --red-soft: rgba(240, 84, 84, 0.12);
   --radius: 10px;
   --shadow: 0 8px 26px rgba(0, 0, 0, 0.12);
+  --chart-grid: #203038;
+  --portfolio-icon-bg: #173b36;
+  --portfolio-cash-bg: linear-gradient(135deg, #15302d, #102025);
+  --portfolio-cash-border: #31534e;
+  --portfolio-cash-label: #a9cebf;
 }
 
 body {
@@ -906,7 +911,7 @@ body {
   color: #53d6bc;
   background: linear-gradient(135deg, rgba(61, 197, 172, .22), rgba(25, 94, 84, .25));
 }
-.insight-stat-icon svg { width: 29px; height: 29px; fill: currentColor; stroke: none; }
+.insight-stat-icon svg { width: 29px; height: 29px; fill: none; stroke: currentColor; }
 .insight-stat-icon.icon-cash { color: #f3b13b; background: linear-gradient(135deg, rgba(197, 126, 23, .35), rgba(98, 64, 17, .24)); }
 .insight-stat-icon.icon-dividend { color: #79d96b; background: linear-gradient(135deg, rgba(70, 173, 79, .3), rgba(31, 91, 40, .24)); }
 .insight-stat .stat-label { margin-bottom: 2px; color: #aeb8bc; font-size: 13px; text-transform: none; letter-spacing: 0; }
@@ -1027,6 +1032,144 @@ body {
   .portfolio-card-head { display: flex; flex-direction: column; }
   .portfolio-cash-row { width: 100%; }
 }
+
+/* ---------- theme ---------- */
+body,
+.topbar,
+.card,
+.portfolio-card,
+.insight-stat,
+.nested-chart-card,
+.header-menu-panel,
+input,
+select,
+button {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.theme-toggle {
+  justify-content: flex-start;
+  color: var(--text-secondary);
+}
+
+.theme-toggle:hover {
+  color: var(--text);
+}
+
+[data-theme='light'] {
+  --bg: #eef1f5;
+  --bg-accent: #e4e9f0;
+  --surface: #ffffff;
+  --surface-muted: #f7f8fa;
+  --border: #d8dee8;
+  --border-strong: #c5cdd9;
+  --text: #1a2332;
+  --text-secondary: #4a5568;
+  --text-muted: #6b778c;
+  --accent: #087f6b;
+  --accent-soft: rgba(8, 127, 107, 0.1);
+  --green: #0d7a4f;
+  --green-soft: #e6f5ee;
+  --red: #b42318;
+  --red-soft: #fdeceb;
+  --shadow: 0 4px 18px rgba(26, 35, 50, 0.08);
+  --chart-grid: #dfe5ec;
+  --portfolio-icon-bg: #dff5ef;
+  --portfolio-cash-bg: linear-gradient(135deg, #edf9f5, #f7fbfa);
+  --portfolio-cash-border: #b9ded3;
+  --portfolio-cash-label: #347766;
+}
+
+[data-theme='light'] body {
+  background: linear-gradient(180deg, #f8fafc 0%, var(--bg) 42%, var(--bg-accent) 100%);
+}
+
+[data-theme='light'] .topbar {
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+[data-theme='light'] .brand-mark { color: var(--accent); }
+[data-theme='light'] .topbar h1 { color: var(--text); }
+[data-theme='light'] .tagline { color: var(--text-secondary); }
+[data-theme='light'] .tagline-date,
+[data-theme='light'] .nav-link,
+[data-theme='light'] .header-menu-trigger { color: var(--text-muted); }
+[data-theme='light'] .nav-link:hover,
+[data-theme='light'] .nav-link.active,
+[data-theme='light'] .nav-link.active:hover { color: var(--text); }
+[data-theme='light'] .nav-link.active::after {
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(8, 127, 107, 0.3);
+}
+[data-theme='light'] .auth-avatar { border-color: var(--border-strong); }
+[data-theme='light'] .auth-user { color: var(--text); }
+[data-theme='light'] .header-menu-panel,
+[data-theme='light'] .card { background: var(--surface); border-color: var(--border); }
+[data-theme='light'] .insights-card { background: transparent; border-color: transparent; }
+[data-theme='light'] .insights-card .card-note { color: var(--text-muted); }
+[data-theme='light'] .btn-refresh {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+[data-theme='light'] .btn-refresh:hover { background: var(--surface-muted); color: var(--text); }
+[data-theme='light'] .btn-add-portfolio {
+  border-color: #087f6b;
+  background: linear-gradient(135deg, #0e9f85, #087f6b);
+}
+[data-theme='light'] .insights-card .insight-stat,
+[data-theme='light'] .insights-card .insight-stat-primary {
+  border-color: var(--border);
+  background: linear-gradient(120deg, var(--surface), var(--surface-muted));
+}
+[data-theme='light'] .insight-stat .stat-label,
+[data-theme='light'] .insight-stat small { color: var(--text-muted); }
+[data-theme='light'] .insight-stat .stat-value,
+[data-theme='light'] .insight-stat:not(.insight-stat-primary) .stat-value,
+[data-theme='light'] .insight-stat-primary .stat-value { color: var(--text); }
+[data-theme='light'] .insight-stat-icon {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+[data-theme='light'] .insights-card .nested-chart-card.card,
+[data-theme='light'] .insights-card .portfolio-card {
+  border-color: var(--border);
+  background: var(--surface);
+}
+[data-theme='light'] .chart-card select,
+[data-theme='light'] .portfolio-cash-row {
+  border-color: var(--border);
+  background-color: var(--surface-muted);
+  color: var(--text);
+}
+[data-theme='light'] .recharts-cartesian-grid line { stroke: var(--chart-grid); }
+[data-theme='light'] .recharts-text { fill: var(--text-muted); }
+[data-theme='light'] .recharts-default-tooltip { background: var(--surface) !important; border-color: var(--border) !important; }
+[data-theme='light'] .recharts-legend-item-text { color: var(--text-secondary) !important; }
+[data-theme='light'] .recharts-pie-sector path { stroke: var(--surface); }
+[data-theme='light'] .portfolio-name,
+[data-theme='light'] .portfolio-cash-row .cell-input.num.money-input { color: var(--text); }
+[data-theme='light'] .portfolio-meta-row .cell-input,
+[data-theme='light'] .portfolio-card-head > .cell-input { border-color: var(--border); color: var(--text-secondary); }
+[data-theme='light'] .insights-card .portfolio-summary-line {
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+[data-theme='light'] .insights-card .portfolio-card .table-wrap,
+[data-theme='light'] .insights-card .holdings-table,
+[data-theme='light'] .insights-card .holdings-table th:first-child,
+[data-theme='light'] .insights-card .holdings-table td:first-child { border-color: var(--border); background: var(--surface); }
+[data-theme='light'] .insights-card .holdings-table thead th:first-child,
+[data-theme='light'] .data-table th { background: var(--surface-muted); }
+[data-theme='light'] .data-table th { color: var(--text-muted); border-color: var(--border); }
+[data-theme='light'] .data-table td { color: var(--text); border-color: var(--border); }
+[data-theme='light'] .data-table tbody tr:hover td,
+[data-theme='light'] .cell-input:focus { background: var(--surface-muted); }
+[data-theme='light'] .cell-input { color: var(--text); }
+[data-theme='light'] .stock-logo { border-color: var(--border); }
+[data-theme='light'] .add-holding { color: var(--accent); }
+
 
 .stat {
   display: flex;
@@ -2143,6 +2286,34 @@ input[type='number'] {
 .stock-name-cell .cell-input.name {
   flex: 1;
   min-width: 0;
+}
+
+.stock-category-select {
+  position: relative;
+  display: inline-flex;
+  min-width: 34px;
+  height: 32px;
+  padding: 0 8px;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-muted);
+  background: var(--surface-muted);
+  white-space: nowrap;
+}
+
+.stock-category-select.has-category { color: var(--stock-icon-color, var(--accent)); }
+.stock-category-select span { max-width: 0; overflow: hidden; font-size: 11px; }
+.stock-category-select:hover span,
+.stock-category-select:focus-within span { max-width: 120px; }
+.stock-category-select select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .stock-logo {
