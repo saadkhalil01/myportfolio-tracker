@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { categoryChartColor } from '../categoryColors.js';
 import { fmt } from '../storage.js';
+import StockCategoryIcon from './StockCategoryIcon.jsx';
 
 const CHART_STYLES = [
   { id: 'donut', label: 'Donut' },
@@ -96,6 +97,20 @@ function legendFormatter(value, entry) {
   return pct != null ? `${value} · ${fmtPct(pct)}` : value;
 }
 
+function HoldingLegend({ data, side = false }) {
+  return (
+    <div className={`chart-side-legend${side ? '' : ' chart-holding-legend'}`} aria-label="Chart legend">
+      {data.map((entry) => (
+        <div key={entry.id || entry.name} className="chart-side-legend-item">
+          <span style={{ background: entry.color }} aria-hidden="true" />
+          <StockCategoryIcon category={entry.category} color={entry.color} size={16} />
+          <span>{entry.name} · {fmtPct(entry.pct)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function coverageInfo(assets, liabilities) {
   if (liabilities <= 0) {
     return {
@@ -142,8 +157,11 @@ function CoverageScale({ assets, liabilities }) {
   );
 }
 
-function FlexibleChart({ data, style, chartId, sideLegend = false }) {
+function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend = false }) {
   const colored = withPercents(data);
+  const legend = holdingLegend
+    ? <Legend content={<HoldingLegend data={colored} />} />
+    : <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />;
   const empty = colored.length === 0 || colored.every((d) => !d.value);
   const gradientId = `areaFill-${chartId}`;
 
@@ -169,21 +187,14 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
                   strokeWidth={2}
                 >
                   {colored.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
+                    <Cell key={entry.id || entry.name} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip content={<ChartTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="chart-side-legend" aria-label="Chart legend">
-            {colored.map((entry) => (
-              <div key={entry.name} className="chart-side-legend-item">
-                <span style={{ background: entry.color }} aria-hidden="true" />
-                <span>{entry.name} · {fmtPct(entry.pct)}</span>
-              </div>
-            ))}
-          </div>
+          <HoldingLegend data={colored} side />
         </div>
       );
     }
@@ -202,11 +213,11 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
             strokeWidth={2}
           >
             {colored.map((entry) => (
-              <Cell key={entry.name} fill={entry.color} />
+              <Cell key={entry.id || entry.name} fill={entry.color} />
             ))}
           </Pie>
           <Tooltip content={<ChartTooltip />} />
-          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
+          {legend}
         </PieChart>
       </ResponsiveContainer>
     );
@@ -237,10 +248,10 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
             width={88}
           />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
-          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
+          {legend}
           <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22} name="Value">
             {colored.map((entry) => (
-              <Cell key={entry.name} fill={entry.color} />
+              <Cell key={entry.id || entry.name} fill={entry.color} />
             ))}
           </Bar>
         </BarChart>
@@ -256,7 +267,7 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
           <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
           <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
           <Tooltip content={<ChartTooltip />} />
-          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
+          {legend}
           <Line
             type="monotone"
             dataKey="value"
@@ -285,7 +296,7 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
           <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
           <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
           <Tooltip content={<ChartTooltip />} />
-          <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
+          {legend}
           <Area
             type="monotone"
             dataKey="value"
@@ -307,10 +318,10 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
         <XAxis dataKey="name" tick={axisTick} axisLine={false} tickLine={false} />
         <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
-        <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />
+        {legend}
         <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48} name="Value">
           {colored.map((entry) => (
-            <Cell key={entry.name} fill={entry.color} />
+            <Cell key={entry.id || entry.name} fill={entry.color} />
           ))}
         </Bar>
       </BarChart>
@@ -318,7 +329,7 @@ function FlexibleChart({ data, style, chartId, sideLegend = false }) {
   );
 }
 
-export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '', sideLegend = false }) {
+export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '', sideLegend = false, holdingLegend = false }) {
   return (
     <div className={`card chart-card ${className}`.trim()}>
       <div className="card-header chart-header">
@@ -338,7 +349,7 @@ export function ChartCard({ title, chartId, data, style, onStyleChange, footer, 
           </select>
         </label>
       </div>
-      <FlexibleChart data={data} style={style} chartId={chartId} sideLegend={sideLegend} />
+      <FlexibleChart data={data} style={style} chartId={chartId} sideLegend={sideLegend} holdingLegend={holdingLegend} />
       {footer}
     </div>
   );

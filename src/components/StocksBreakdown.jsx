@@ -7,6 +7,8 @@ import StockCategorySelect from './StockCategorySelect.jsx';
 import StocksCharts from './StocksCharts.jsx';
 import AppIcon from './AppIcon.jsx';
 import PortfolioHeader from './PortfolioHeader.jsx';
+import UpcomingDividends from './UpcomingDividends.jsx';
+import { stockColor } from '../stockColors.js';
 
 const STRATEGIES = [
   { id: 'dividend', label: 'Dividend' },
@@ -23,15 +25,6 @@ const SORT_OPTIONS = [
   { id: 'price', label: 'Price' },
   { id: 'avgBuy', label: 'Avg buy' },
 ];
-
-const STOCK_COLORS = ['#28aa91', '#57b95f', '#7554be', '#f29125', '#e23e45', '#d84c9b', '#278fa2', '#78838c'];
-
-function stockColor(holding) {
-  if (/^#[0-9a-f]{6}$/i.test(String(holding?.customColor || ''))) return holding.customColor;
-  const name = normalizeSymbol(holding?.name);
-  const hash = [...name].reduce((total, char) => total + char.charCodeAt(0), 0);
-  return STOCK_COLORS[hash % STOCK_COLORS.length];
-}
 
 const fmtPrice = (n, digits = 2) =>
   Number(n || 0).toLocaleString('en-PK', {
@@ -340,6 +333,7 @@ export default function StocksBreakdown({
       </div>
 
       <StocksCharts portfolios={portfolios} quotes={quotes} />
+      <UpcomingDividends portfolios={portfolios} onUpdateHolding={updateHolding} />
 
       <div className="portfolio-grid">
         {portfolios.map((p) => {
@@ -435,7 +429,7 @@ export default function StocksBreakdown({
                                     }
                                   />
                                 </label>
-                                <StockLogo name={h.name} />
+                                <StockLogo name={h.name} category={h.category} color={stockColor(h)} />
                                 <StockCategorySelect
                                   value={h.category}
                                   stockName={h.name}

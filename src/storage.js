@@ -1,3 +1,5 @@
+import { normalizeUpcomingDividend } from './stockDividends.js';
+
 const STORAGE_KEY_BASE = 'myportfolio-data-v1';
 
 /** Preserve a blank numeric field while the user is editing it. */
@@ -402,6 +404,7 @@ function normalizeHolding(h, { swapAvgAndShares = false } = {}) {
     avgBuy: swapAvgAndShares ? shares : avgBuy,
     shares: swapAvgAndShares ? avgBuy : shares,
     ...(customColor ? { customColor } : {}),
+    ...(h.upcomingDividend ? { upcomingDividend: normalizeUpcomingDividend(h.upcomingDividend) } : {}),
   };
 }
 

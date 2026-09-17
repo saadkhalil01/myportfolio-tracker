@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ChartCard } from './ChartsPanel.jsx';
+import { STOCK_CATEGORIES } from './StockCategorySelect.jsx';
 import { normalizeSymbol } from '../psxQuotes.js';
 
 const PALETTE = [
@@ -82,7 +83,11 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         if (!label || label === '—') continue;
         const cost = holdingCost(h);
         const value = holdingValue(h, quotes);
-        const prev = bySym.get(label) || {
+        const category = STOCK_CATEGORIES.find((c) => c.id === h.category)?.id || '';
+        const holdingKey = `${label}:${category}`;
+        const prev = bySym.get(holdingKey) || {
+          id: holdingKey,
+          category,
           name: label,
           value: 0,
           cost: 0,
@@ -93,7 +98,7 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         prev.value += value;
         prev.cost += cost;
         prev.pl += value - cost;
-        bySym.set(label, prev);
+        bySym.set(holdingKey, prev);
       }
     }
 
@@ -101,6 +106,8 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value)
       .map((d, i) => ({
+        id: d.id,
+        category: d.category,
         name: d.name,
         value: d.value,
         color: d.color || PALETTE[i % PALETTE.length],
@@ -123,6 +130,8 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
       .sort((a, b) => Math.abs(b.pl) - Math.abs(a.pl))
       .slice(0, 10)
       .map((d) => ({
+        id: d.id,
+        category: d.category,
         name: d.name,
         value: d.pl,
         color: d.pl >= 0 ? '#0d7a4f' : '#b42318',
@@ -197,6 +206,7 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         onStyleChange={(v) => setStyle('holdings', v)}
         className="nested-chart-card"
         sideLegend
+        holdingLegend
       />
       <ChartCard
         title={middle.title}
@@ -210,6 +220,7 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         title="Unrealized P/L"
         chartId="stock-pl"
         data={pl}
+        holdingLegend
         style={styles.pl}
         onStyleChange={(v) => setStyle('pl', v)}
         className="nested-chart-card"
