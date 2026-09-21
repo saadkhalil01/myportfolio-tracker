@@ -1984,7 +1984,7 @@ input[type='number'] {
 }
 
 .targets-table {
-  min-width: 520px;
+  min-width: 640px;
 }
 
 .targets-table .cell-input.num {
@@ -2556,6 +2556,79 @@ input[type='number'] {
   table-layout: fixed;
 }
 
+/* ---------- mobile glass tab bar ---------- */
+@media (max-width: 600px) {
+  html { scroll-padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+
+  body .app { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+
+  .topbar .navbar {
+    position: fixed;
+    z-index: 90;
+    inset: auto max(8px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    width: auto;
+    max-width: 480px;
+    min-height: 68px;
+    margin-inline: auto;
+    gap: 2px;
+    padding: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), transparent 55%), rgba(17, 31, 38, 0.82);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(255, 255, 255, 0.05), 0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .navbar .nav-link {
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    min-width: 0;
+    min-height: 54px;
+    padding: 6px 0;
+    border-radius: 22px;
+    color: #c5d0d5;
+    font-size: clamp(8px, 2.35vw, 11px);
+    letter-spacing: -0.025em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  }
+
+  .navbar .nav-link svg { width: 21px; height: 21px; }
+  .navbar .nav-link.active::after { content: none; }
+  .navbar .nav-link:hover { background: rgba(255, 255, 255, 0.07); }
+  .navbar .nav-link.active,
+  .navbar .nav-link.active:hover {
+    color: #8af3d9;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(81, 221, 187, 0.12));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.23), 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+  .navbar .nav-link:active { transform: scale(0.94); }
+  .navbar .nav-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+  .header-menu-panel .mobile-menu-nav { display: none; }
+
+  [data-theme='light'] .topbar .navbar {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), transparent 65%), rgba(235, 243, 246, 0.84);
+    border-color: rgba(255, 255, 255, 0.85);
+    box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255, 255, 255, 0.5), 0 12px 32px rgba(24, 47, 59, 0.18);
+  }
+  [data-theme='light'] .navbar .nav-link { color: #51616c; }
+  [data-theme='light'] .navbar .nav-link.active {
+    color: #086b58;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(100, 212, 183, 0.25));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navbar .nav-link { transition: none; }
+    .navbar .nav-link:active { transform: none; }
+  }
+}
+
 /* ---------- tablet navigation ---------- */
 @media (max-width: 980px) {
   .topbar {
@@ -3015,11 +3088,30 @@ input[type='number'] {
 .dividend-holding small { display: block; }
 .dividend-management { margin-top: 14px; }
 .dividend-management summary { cursor: pointer; font-size: 13px; }
-.dividend-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.dividend-editor { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .dividend-editor label { display: flex; flex-direction: column; gap: 5px; min-width: 0; font-size: 12px; color: var(--text-muted); }
 .dividend-editor .cell-input { width: 100%; min-width: 0; box-sizing: border-box; }
 @media (max-width: 600px) {
   .dividend-editor { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .dividend-editor > .dividend-holding { grid-column: 1 / -1; }
   .dividend-editor > button { justify-self: start; }
+}
+
+.dividend-tax { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.dividend-tax .cell-input { width: 80px; }
+
+.btn.btn-add.btn-add-portfolio,
+.btn.btn-add.btn-add-portfolio:hover {
+  color: #fff;
+  font-weight: 700;
+}
+
+.buy-rule {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.targets-table .buy-rule .cell-input {
+  width: 64px;
 }

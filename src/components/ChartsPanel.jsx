@@ -157,9 +157,9 @@ function CoverageScale({ assets, liabilities }) {
   );
 }
 
-function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend = false }) {
+function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend = false, showLegend = true }) {
   const colored = withPercents(data);
-  const legend = holdingLegend
+  const legend = !showLegend ? null : holdingLegend
     ? <Legend content={<HoldingLegend data={colored} />} />
     : <Legend iconType="circle" iconSize={8} formatter={legendFormatter} />;
   const empty = colored.length === 0 || colored.every((d) => !d.value);
@@ -329,7 +329,7 @@ function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend
   );
 }
 
-export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '', sideLegend = false, holdingLegend = false }) {
+export function ChartCard({ title, chartId, data, style, onStyleChange, footer, className = '', sideLegend = false, holdingLegend = false, showLegend = true }) {
   return (
     <div className={`card chart-card ${className}`.trim()}>
       <div className="card-header chart-header">
@@ -349,7 +349,7 @@ export function ChartCard({ title, chartId, data, style, onStyleChange, footer, 
           </select>
         </label>
       </div>
-      <FlexibleChart data={data} style={style} chartId={chartId} sideLegend={sideLegend} holdingLegend={holdingLegend} />
+      <FlexibleChart data={data} style={style} chartId={chartId} sideLegend={sideLegend} holdingLegend={holdingLegend} showLegend={showLegend} />
       {footer}
     </div>
   );

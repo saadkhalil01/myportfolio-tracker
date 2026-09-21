@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { fmt, uid, numberInputValue } from '../storage.js';
 import { normalizeSymbol } from '../psxQuotes.js';
 import MoneyInput from './MoneyInput.jsx';
-import StockLogo from './StockLogo.jsx';
 import StockCategorySelect from './StockCategorySelect.jsx';
+import StockLogo from './StockLogo.jsx';
 import StocksCharts from './StocksCharts.jsx';
 import AppIcon from './AppIcon.jsx';
 import PortfolioHeader from './PortfolioHeader.jsx';
@@ -108,6 +108,8 @@ export default function StocksBreakdown({
   quoteUpdatedAt = null,
   onRefreshQuotes,
   dividendReinvested = 0,
+  dividendTaxPercentage = 15,
+  onDividendTaxPercentageChange,
 }) {
   const [sortBy, setSortBy] = useState('value');
   const [sortDir, setSortDir] = useState('desc');
@@ -333,7 +335,8 @@ export default function StocksBreakdown({
       </div>
 
       <StocksCharts portfolios={portfolios} quotes={quotes} />
-      <UpcomingDividends portfolios={portfolios} onUpdateHolding={updateHolding} />
+      <UpcomingDividends portfolios={portfolios} onUpdateHolding={updateHolding}
+        taxPercentage={dividendTaxPercentage} onTaxPercentageChange={onDividendTaxPercentageChange} />
 
       <div className="portfolio-grid">
         {portfolios.map((p) => {
@@ -429,7 +432,6 @@ export default function StocksBreakdown({
                                     }
                                   />
                                 </label>
-                                <StockLogo name={h.name} category={h.category} color={stockColor(h)} />
                                 <StockCategorySelect
                                   value={h.category}
                                   stockName={h.name}
@@ -438,6 +440,7 @@ export default function StocksBreakdown({
                                     updateHolding(p.id, h.id, 'category', value)
                                   }
                                 />
+                                <StockLogo name={h.name} category={h.category} color={stockColor(h)} />
                                 <input
                                   className="cell-input name"
                                   value={h.name}

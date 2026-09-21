@@ -480,6 +480,9 @@ export default function App() {
             quoteStatus={quoteStatus}
             quoteUpdatedAt={quoteUpdatedAt}
             dividendReinvested={data.dividendReinvested}
+            dividendTaxPercentage={data.dividendTaxPercentage}
+            onDividendTaxPercentageChange={(dividendTaxPercentage) =>
+              setData((prev) => ({ ...prev, dividendTaxPercentage }))}
             onChange={(portfolios) => setData((prev) => ({ ...prev, portfolios }))}
             onRefreshQuotes={() => setQuoteRefreshKey((k) => k + 1)}
           />

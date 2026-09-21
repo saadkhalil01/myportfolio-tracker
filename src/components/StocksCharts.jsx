@@ -220,7 +220,7 @@ export default function StocksCharts({ portfolios, quotes = {} }) {
         title="Unrealized P/L"
         chartId="stock-pl"
         data={pl}
-        holdingLegend
+        showLegend={false}
         style={styles.pl}
         onStyleChange={(v) => setStyle('pl', v)}
         className="nested-chart-card"

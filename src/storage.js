@@ -1,3 +1,4 @@
+import { normalizeBuyMultiplier } from './targetRules.js';
 import { normalizeUpcomingDividend } from './stockDividends.js';
 
 const STORAGE_KEY_BASE = 'myportfolio-data-v1';
@@ -16,6 +17,7 @@ export const DEFAULT_DATA = {
   liabilities: [],
   targets: [],
   dividendReinvested: 0,
+  dividendTaxPercentage: 15,
   startDate: '2023-12-23',
   chartStyles: {
     allocation: 'donut',
@@ -368,6 +370,7 @@ function normalizeTarget(t) {
     name: t.name || 'Target',
     year: Number(t.year || new Date().getFullYear()),
     targetAmount: Number(t.targetAmount ?? t.amount ?? 0),
+    buyMultiplier: normalizeBuyMultiplier(t.buyMultiplier),
   };
 }
 

@@ -17,7 +17,7 @@ export default function StockLogo({ name, category, color, size = 28 }) {
   const letter = symbol.slice(0, 2) || '?';
   const src = !failed && candidates[index] ? candidates[index] : null;
 
-  if (STOCK_CATEGORIES.some((item) => item.id === category)) {
+  if (!src && STOCK_CATEGORIES.some((item) => item.id === category)) {
     return (
       <span className="stock-logo stock-logo-fallback" style={{ width: size, height: size }}>
         <StockCategoryIcon category={category} color={color} size={size * 0.65} />
