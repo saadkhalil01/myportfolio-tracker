@@ -120,8 +120,9 @@ export function normalizeSymbol(name = '') {
 
 function faviconUrls(domain) {
   return [
+    `https://logo.clearbit.com/${domain}?size=256`,
     `https://icon.horse/icon/${domain}`,
-    `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+    `https://www.google.com/s2/favicons?domain=${domain}&sz=256`,
     `https://icons.duckduckgo.com/ip3/${domain}.ico`,
   ];
 }

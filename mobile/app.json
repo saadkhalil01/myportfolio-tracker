@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "MyPortfolio",
+    "slug": "myportfolio-mobile",
+    "version": "1.0.0",
+    "scheme": "myportfoliopsx",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.metadots.myportfoliopsx" },
+    "android": { "package": "com.metadots.myportfoliopsx" },
+    "plugins": ["expo-secure-store", "expo-web-browser"],
+    "web": { "bundler": "metro", "name": "MyPortfolio Mobile" }
+  }
+}
