@@ -854,6 +854,29 @@ body {
   min-height: 420px;
   margin: 0 auto;
   padding: 18px 22px 0;
+  position: relative;
+}
+
+.market-art {
+  position: fixed;
+  bottom: 0;
+  width: 350px;
+  height: 280px;
+  object-fit: contain;
+  opacity: 0.14;
+  pointer-events: none;
+  user-select: none;
+}
+
+.market-art--bull { left: max(0px, calc((100vw - 1440px) / 2 - 295px)); }
+.market-art--bear {
+  right: max(0px, calc((100vw - 1440px) / 2 - 295px));
+  transform: scaleX(-1);
+}
+.page-stack { position: relative; z-index: 1; }
+
+@media (max-width: 1900px) {
+  .market-art { display: none; }
 }
 
 .footer { display: none; }

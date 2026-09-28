@@ -11,7 +11,7 @@ export default function Account({ auth, store }) {
     {!auth.configured && <Text style={s.muted}>Cloud sign-in is not configured in this build. You can still manage portfolios on this device.</Text>}
     <Button title={auth.busy ? 'Please wait…' : auth.user ? 'Sign out' : 'Sign in with Google'}
       disabled={auth.busy || store.busy || !auth.configured} onPress={auth.user ? auth.signOut : auth.signIn} />
-    {auth.error ? <Text accessibilityRole="alert" style={s.negative}>{auth.error}</Text> : null}
+    {auth.error ? <Text accessibilityRole="alert" style={[s.text, s.negative]}>{auth.error}</Text> : null}
     <Text style={s.muted}>{store.status}</Text>
     <Text style={s.muted}>Guest portfolios stay on this device and are separate from your signed-in account. Signing out keeps your account’s saved copy for your next sign-in.</Text>
     {auth.user && <Button title="Sync now" secondary disabled={store.busy} onPress={() => store.refresh()} />}

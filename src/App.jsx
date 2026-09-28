@@ -412,6 +412,8 @@ export default function App() {
       {toast ? <p className="toast-banner">{toast}</p> : null}
 
       <main className="page">
+        <img className="market-art market-art--bull" src="/market-bull.png" alt="" aria-hidden="true" />
+        <img className="market-art market-art--bear" src="/market-bear.png" alt="" aria-hidden="true" />
         {tab === 'overview' && (
           <div className="page-stack">
             <SummaryCards data={data} totals={totals} onChange={setData} />

@@ -31,9 +31,13 @@ export default function Records({ tab, data, quotes, edit, disabled }) {
 
 function TargetProgress({ item, available }) {
   const required = item.targetAmount * item.buyMultiplier;
-  const percent = required > 0 ? Math.min(100, available / required * 100) : 0;
+  const percent = required > 0 ? Math.max(0, Math.min(100, available / required * 100)) : 0;
   return <View style={{ gap: 6 }}>
     <Text style={s.text}>{item.year} · PKR {money(required)} needed ({item.buyMultiplier}×)</Text>
-    <Text style={required > 0 && available >= required ? s.positive : s.muted}>{Math.round(percent)}% · {money(Math.max(0, required - available))} remaining</Text>
+    <View style={s.progressTrack} accessibilityRole="progressbar" accessibilityLabel={`${item.name} funding progress`}
+      accessibilityValue={{ min: 0, max: 100, now: Math.round(percent) }}>
+      <View style={[s.progressFill, { width: `${percent}%` }]} />
+    </View>
+    <Text style={[s.muted, required > 0 && available >= required && s.positive]}>{Math.round(percent)}% · {money(Math.max(0, required - available))} remaining</Text>
   </View>;
 }

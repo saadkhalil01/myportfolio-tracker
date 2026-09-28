@@ -6,10 +6,25 @@
     "scheme": "myportfoliopsx",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/launcher-icon.png",
     "ios": { "supportsTablet": true, "bundleIdentifier": "com.metadots.myportfoliopsx" },
-    "android": { "package": "com.metadots.myportfoliopsx" },
-    "plugins": ["expo-secure-store", "expo-web-browser"],
+    "android": {
+      "package": "com.metadots.myportfoliopsx",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#090f18"
+      }
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-web-browser",
+      ["expo-splash-screen", {
+        "image": "./assets/icon.png",
+        "imageWidth": 240,
+        "resizeMode": "contain",
+        "backgroundColor": "#090f18"
+      }]
+    ],
     "web": { "bundler": "metro", "name": "MyPortfolio Mobile" }
   }
 }

@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { money, totals } from '../lib/model.mjs';
 import { styles as s } from '../theme';
-import { Button } from './UI';
+import { Button, Metric } from './UI';
 import HoldingRow from './HoldingRow';
 
 export default function PortfolioCard({ portfolio, quotes, edit, disabled }) {
@@ -14,7 +14,14 @@ export default function PortfolioCard({ portfolio, quotes, edit, disabled }) {
       </View>
       <Button title="Edit" secondary disabled={disabled} onPress={() => edit({ kind: 'portfolio', portfolio })} />
     </View>
-    <Text style={s.text}>PKR {money(result.value)} <Text style={s.muted}>· cash {money(result.cash)}</Text></Text>
+    <View style={s.inset}>
+      <Text style={s.label}>PORTFOLIO VALUE · PKR</Text>
+      <Text style={s.total} numberOfLines={1} adjustsFontSizeToFit>{money(result.value)}</Text>
+      <View style={s.row}>
+        <Metric label="Available cash" value={money(result.cash)} />
+        <Metric label="Unrealized return" value={`${result.profit >= 0 ? '+' : ''}${money(result.profit)}`} positive={result.profit >= 0} />
+      </View>
+    </View>
     {portfolio.goal ? <Text style={s.muted}>{portfolio.goal}</Text> : null}
     {portfolio.holdings.map((holding) => <HoldingRow key={holding.id} holding={holding} quotes={quotes}
       disabled={disabled} onPress={() => edit({ kind: 'holding', portfolio, holding })} />)}

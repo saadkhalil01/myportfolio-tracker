@@ -47,7 +47,7 @@ export default function Editor({ target, store, close }) {
             <Field label="Broker" value={form.broker} onChangeText={field('broker')} />
             <Field label="Available cash · PKR" numeric value={form.cash} onChangeText={field('cash')} />
           </>}
-          {error ? <Text accessibilityRole="alert" style={s.negative}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" style={[s.text, s.negative]}>{error}</Text> : null}
           <Button title={store.busy ? 'Saving…' : 'Save'} disabled={store.busy} onPress={save} />
           {existing && <Button title="Delete" secondary danger disabled={store.busy} onPress={() => setDeleting(true)} />}
           {deleting && <View style={s.card}>

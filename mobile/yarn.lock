@@ -2801,6 +2801,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-splash-screen@npm:~57.0.9":
+  version: 57.0.9
+  resolution: "expo-splash-screen@npm:57.0.9"
+  dependencies:
+    "@expo/config-plugins": "npm:~57.0.9"
+    "@expo/image-utils": "npm:^0.11.5"
+    xml2js: "npm:0.6.0"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/4ebd5bb01684009db5c8ff739bfa29eabebde6a7196f17ef4e26790cdadfc06d493ea189cc5bc9a5718c930056fa3b7dfb9ec38bb852ad8f7987dc5fd4ddaf0b
+  languageName: node
+  linkType: hard
+
 "expo-updates-interface@npm:~57.0.2":
   version: 57.0.2
   resolution: "expo-updates-interface@npm:57.0.2"
@@ -4163,7 +4176,9 @@ __metadata:
     expo-blur: "npm:~57.0.3"
     expo-crypto: "npm:~57.0.3"
     expo-dev-client: "npm:~57.0.19"
+    expo-font: "npm:~57.0.4"
     expo-secure-store: "npm:~57.0.4"
+    expo-splash-screen: "npm:~57.0.9"
     expo-web-browser: "npm:~57.0.3"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"

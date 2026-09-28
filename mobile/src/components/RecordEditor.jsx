@@ -28,7 +28,7 @@ export default function RecordEditor({ target, store, close }) {
           <View style={s.between}><Text style={s.heading}>{item ? 'Edit' : 'Add'} record</Text><Button title="Cancel" secondary disabled={store.busy} onPress={close} /></View>
           {recordFields[kind].map(([key, label, numeric]) => <Field key={key} label={label} numeric={numeric} value={form[key]}
             onChangeText={(value) => setForm((prev) => ({ ...prev, [key]: value }))} />)}
-          {error ? <Text accessibilityRole="alert" style={s.negative}>{error}</Text> : null}
+          {error ? <Text accessibilityRole="alert" style={[s.text, s.negative]}>{error}</Text> : null}
           <Button title={store.busy ? 'Saving…' : 'Save'} disabled={store.busy} onPress={() => save()} />
           {item && <Button title="Delete" secondary danger disabled={store.busy} onPress={() => setDeleting(true)} />}
           {deleting && <View style={s.card}><Text style={s.text}>Delete {item.name}? This also updates your synced account.</Text>

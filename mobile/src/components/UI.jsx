@@ -1,25 +1,27 @@
+import { useState } from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { colors, styles as s } from '../theme';
 
 export function Button({ title, onPress, secondary = false, disabled = false, danger = false }) {
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} disabled={disabled} onPress={onPress}
-    style={({ pressed }) => [s.button, secondary && s.secondary, (disabled || pressed) && s.disabled]}>
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} disabled={disabled} accessibilityState={{ disabled }} onPress={onPress}
+    style={({ pressed }) => [s.button, secondary && s.secondary, disabled && s.disabled, pressed && s.pressed]}>
     <Text style={[s.buttonText, secondary && s.secondaryText, danger && s.negative]}>{title}</Text>
   </Pressable>;
 }
 
 export function Field({ label, value, onChangeText, numeric = false, ...props }) {
+  const [focused, setFocused] = useState(false);
   return <View style={s.field}>
     <Text style={s.muted}>{label}</Text>
-    <TextInput accessibilityLabel={label} style={s.input} value={String(value ?? '')} onChangeText={onChangeText}
+    <TextInput accessibilityLabel={label} style={[s.input, focused && s.inputFocused]} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)} value={String(value ?? '')} onChangeText={onChangeText}
       keyboardType={numeric ? 'decimal-pad' : 'default'} placeholderTextColor={colors.muted}
       autoCorrect={false} {...props} />
   </View>;
 }
 
 export function Metric({ label, value, positive }) {
-  return <View style={s.grow}>
+  return <View style={[s.grow, { gap: 5 }]}>
     <Text style={s.muted}>{label}</Text>
-    <Text style={[s.number, positive === true && s.positive, positive === false && s.negative]}>{value}</Text>
+    <Text adjustsFontSizeToFit minimumFontScale={0.7} numberOfLines={1} style={[s.number, positive === true && s.positive, positive === false && s.negative]}>{value}</Text>
   </View>;
 }
