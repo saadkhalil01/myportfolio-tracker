@@ -43,7 +43,8 @@ function DividendCard({ entry }) {
     day: 'numeric', month: 'short', year: 'numeric',
   });
   return (
-    <article className="dividend-summary" style={{ '--dividend-color': stockColor(entry.holding) }}>
+    <article style={{ backgroundColor: 'white' }} className="dividend-summary"
+      style={{ '--dividend-color': stockColor(entry.holding) }}>
       <HoldingIdentity holding={entry.holding} portfolio={entry.portfolio} />
       <time dateTime={entry.paymentDate}>{date}</time>
       <strong>After tax: {fmt(entry.expectedAfterTax)} PKR</strong>
@@ -69,7 +70,7 @@ export default function UpcomingDividends({ portfolios, onUpdateHolding, taxPerc
             onChange={(event) => onTaxPercentageChange(event.target.value === '' ? '' :
               Math.min(100, Math.max(0, numberInputValue(event.target.value))))} />
         </label>
-        <strong>Expected after tax: {fmt(afterTax)} PKR · Gross: {fmt(total)} PKR</strong>
+        <strong>Expected after tax: {fmt(afterTax)} PKR</strong>
       </div>
       <p className="muted">Track the next announced payment for each holding. Amounts use your current shares.</p>
       {entries.length ? <div className="dividend-grid">
