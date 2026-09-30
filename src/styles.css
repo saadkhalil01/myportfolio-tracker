@@ -136,6 +136,14 @@ textarea {
   letter-spacing: -0.02em;
 }
 
+.brand-wordmark {
+  display: block;
+  width: 152px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
 .topbar h1 {
   margin: 0;
   font-size: 22px;

@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { styles as s } from '../theme';
 import { Button } from './UI';
 
@@ -16,9 +16,8 @@ const descriptions = {
 export default function DashboardHeader({ tab, status, onNavigate }) {
   return <View style={s.header}>
     <View style={s.between}>
-      <Text accessibilityLabel="MyPortfolio" style={[s.wordmark, s.grow]} numberOfLines={1} adjustsFontSizeToFit>
-        my<Text style={s.wordmarkAccent}>portfolio</Text>
-      </Text>
+      <Image source={require('../../assets/brand-logo.png')} style={s.headerLogo}
+        resizeMode="contain" accessibilityLabel="MyPortfolio" />
       <Button title={tab === 'Account' ? 'Done' : 'Account'} secondary
         onPress={() => onNavigate(tab === 'Account' ? 'Overview' : 'Account')} />
     </View>
