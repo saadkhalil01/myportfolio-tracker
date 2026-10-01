@@ -137,12 +137,16 @@ textarea {
 }
 
 .brand-wordmark {
-  display: block;
-  width: 152px;
-  max-width: 100%;
-  height: auto;
-  border-radius: 4px;
+  font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #fff;
 }
+.brand-wordmark-my { color: #62c747; }
+[data-theme='light'] .brand-wordmark { color: #000; }
 
 .topbar h1 {
   margin: 0;

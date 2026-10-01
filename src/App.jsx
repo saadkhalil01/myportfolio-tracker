@@ -355,10 +355,10 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          {/* <img className="brand-mark" src="/favicon.png" alt="" /> */}
-      
           <div>
-    <h1><img className="brand-wordmark" src="/brand-logo.png" alt="MyPortfolio" /></h1>
+            <h1>
+              <span className="brand-wordmark"><span className="brand-wordmark-my">my</span>portfolio</span>
+            </h1>
             <p className="tagline">
               Portfolio ID: <strong>MP-{String(Math.round(portfolioValue || 782400)).slice(0, 6)}KL</strong>
               {/* <span className="tagline-date">since{' '}
