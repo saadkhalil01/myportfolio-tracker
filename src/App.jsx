@@ -436,7 +436,7 @@ export default function App() {
         {tab === 'growth' && (
           <GrowthChart
             history={data.valuationHistory}
-            startDate={data.startDate}
+            startDate={data.portfolioCreatedDate}
             currentValue={totals.currentValue}
             invested={totals.invested}
             onChange={(valuationHistory) =>

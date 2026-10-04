@@ -52,6 +52,7 @@ export function todayISO() {
 export function createEmptyData() {
   const data = structuredClone(DEFAULT_DATA);
   data.startDate = todayISO();
+  data.portfolioCreatedDate = todayISO();
   data.valuationHistory = [];
   return syncValuationHistory(data);
 }
@@ -318,34 +319,17 @@ export function pickRicherData(...sources) {
   });
 }
 
-/** Keep history seeded from start date and always refresh today's snapshot. */
+/** Refresh today's snapshot without backdating values to the investment start. */
 export function syncValuationHistory(data, quotes = {}) {
   const { invested, valuation } = assetTotals(data, quotes);
-  const start = data.startDate || todayISO();
   const today = todayISO();
   let history = normalizeHistory(data.valuationHistory || []);
+  const portfolioCreatedDate = data.portfolioCreatedDate ||
+    history.find((point) => point.date !== data.startDate)?.date || today;
 
   if (history.length === 0) {
-    history =
-      start === today
-        ? [{ date: today, valuation, invested }]
-        : [
-            { date: start, valuation: invested, invested },
-            { date: today, valuation, invested },
-          ];
+    history = [{ date: today, valuation, invested }];
   } else {
-    // Missing start date: copy earliest known values — never invent a lower start from today's cost basis
-    if (!history.some((h) => h.date === start) && start <= history[0].date) {
-      const earliest = history[0];
-      history = normalizeHistory([
-        {
-          date: start,
-          valuation: earliest.valuation,
-          invested: earliest.invested || invested,
-        },
-        ...history,
-      ]);
-    }
     const existingToday = history.find((h) => h.date === today);
     history = normalizeHistory([
       ...history.filter((h) => h.date !== today),
@@ -360,8 +344,8 @@ export function syncValuationHistory(data, quotes = {}) {
 
   const prev = JSON.stringify(normalizeHistory(data.valuationHistory || []));
   const next = JSON.stringify(history);
-  if (prev === next) return data;
-  return { ...data, valuationHistory: history };
+  if (prev === next && data.portfolioCreatedDate === portfolioCreatedDate) return data;
+  return { ...data, portfolioCreatedDate, valuationHistory: history };
 }
 
 function normalizeTarget(t) {

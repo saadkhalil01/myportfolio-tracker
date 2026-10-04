@@ -46,7 +46,9 @@ export default function GrowthChart({ history, startDate, currentValue, invested
   const [draft, setDraft] = useState({ date: '', value: '' });
 
   const series = useMemo(() => {
-    const sorted = [...(history || [])].sort((a, b) => a.date.localeCompare(b.date));
+    const sorted = (history || [])
+      .filter((point) => !startDate || point.date >= startDate)
+      .sort((a, b) => a.date.localeCompare(b.date));
     if (currentValue == null || !Number.isFinite(Number(currentValue))) return sorted;
 
     const today = todayISO();
@@ -64,7 +66,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
         invested: Math.max(Number(invested || 0), Number(prevInvested || 0)),
       },
     ].sort((a, b) => a.date.localeCompare(b.date));
-  }, [history, currentValue, invested]);
+  }, [history, startDate, currentValue, invested]);
 
   const stats = useMemo(() => growthStats(series), [series]);
 
@@ -72,7 +74,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
   const fillId = 'growthFill';
 
   const addPoint = () => {
-    if (!draft.date || draft.value === '') return;
+    if (!draft.date || draft.value === '' || (startDate && draft.date < startDate)) return;
     const base = [...(history || [])].sort((a, b) => a.date.localeCompare(b.date));
     const nearestInvested =
       [...base].reverse().find((p) => p.date <= draft.date)?.invested ?? Number(invested || 0);
@@ -176,14 +178,14 @@ export default function GrowthChart({ history, startDate, currentValue, invested
               ifOverflow="extendDomain"
             />
             <Area
-              type="monotone"
+              type="natural"
               dataKey="valuation"
               stroke={stroke}
               strokeWidth={2.5}
               fill={`url(#${fillId})`}
               name="Current value"
-              dot={{ r: 3, fill: stroke, strokeWidth: 0 }}
-              activeDot={{ r: 5 }}
+              dot={false}
+              activeDot={false}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -195,6 +197,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
           <input
             className="cell-input"
             type="date"
+            min={startDate}
             value={draft.date}
             onChange={(e) => setDraft({ ...draft, date: e.target.value })}
           />
