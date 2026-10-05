@@ -7,7 +7,7 @@ export default function Summary({ portfolios, quotes }) {
   const result = totals(portfolios, quotes);
   return <View style={s.card}>
     <Text style={s.label}>STOCK PORTFOLIO · PKR</Text>
-    <Text style={s.total}>{money(result.value)}</Text>
+    <Text style={s.total} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.5}>{money(result.value)}</Text>
     <Text style={[s.text, result.profit >= 0 ? s.positive : s.negative]}>
       {result.profit >= 0 ? '+' : ''}{money(result.profit)} unrealized return
     </Text>

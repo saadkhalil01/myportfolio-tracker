@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, ScrollView, Text, View } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { randomUUID } from 'expo-crypto';
 import { editHolding, editPortfolio, holdingInput, portfolioInput } from '../lib/model.mjs';
+import DividendFields from './DividendFields';
 import { styles as s } from '../theme';
 import { Button, Field } from './UI';
 
@@ -32,7 +33,8 @@ export default function Editor({ target, store, close }) {
   return <Modal animationType="slide" onRequestClose={() => { if (!store.busy) close(); }}>
     <SafeAreaView style={s.screen}>
       <KeyboardAvoidingView style={s.grow} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={[s.content, { paddingBottom: 24 }]} keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets>
           <View style={s.between}>
             <Text style={s.heading}>{existing ? 'Edit' : 'Add'} {isHolding ? 'stock' : 'portfolio'}</Text>
             <Button title="Cancel" secondary disabled={store.busy} onPress={close} />
@@ -42,13 +44,12 @@ export default function Editor({ target, store, close }) {
           {isHolding ? <>
             <Field label="Shares" numeric value={form.shares} onChangeText={field('shares')} />
             <Field label="Average buy price · PKR" numeric value={form.avgBuy} onChangeText={field('avgBuy')} />
+            <DividendFields form={form} setForm={setForm} />
             <Text style={s.muted}>Editing a holding updates its recorded position. Available cash is edited separately.</Text>
           </> : <>
             <Field label="Broker" value={form.broker} onChangeText={field('broker')} />
             <Field label="Available cash · PKR" numeric value={form.cash} onChangeText={field('cash')} />
           </>}
-          {error ? <Text accessibilityRole="alert" style={[s.text, s.negative]}>{error}</Text> : null}
-          <Button title={store.busy ? 'Saving…' : 'Save'} disabled={store.busy} onPress={save} />
           {existing && <Button title="Delete" secondary danger disabled={store.busy} onPress={() => setDeleting(true)} />}
           {deleting && <View style={s.card}>
             <Text style={s.text}>Delete {existing.name}{!isHolding ? ' and all its holdings' : ''}? This also updates your synced account.</Text>
@@ -56,6 +57,10 @@ export default function Editor({ target, store, close }) {
             <Button title="Keep it" secondary disabled={store.busy} onPress={() => setDeleting(false)} />
           </View>}
         </ScrollView>
+        <View style={s.editorFooter}>
+          {error ? <Text accessibilityRole="alert" style={[s.text, s.negative]}>{error}</Text> : null}
+          <Button title={store.busy ? 'Saving…' : (existing ? 'Save changes' : isHolding ? 'Add stock' : 'Create portfolio')} disabled={store.busy} onPress={save} />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   </Modal>;

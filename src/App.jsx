@@ -37,7 +37,7 @@ import AppIcon from './components/AppIcon.jsx';
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview' },
   { id: 'growth', label: 'Growth' },
-  { id: 'investments', label: 'Investments' },
+  { id: 'investments', label: 'Portfolio' },
   { id: 'liabilities', label: 'Liabilities' },
   { id: 'targets', label: 'Targets' },
   { id: 'stocks', label: 'Stocks' },

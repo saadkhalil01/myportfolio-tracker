@@ -4,15 +4,15 @@ import { styles as s } from '../theme';
 import { Button, Metric } from './UI';
 import HoldingRow from './HoldingRow';
 
-export default function PortfolioCard({ portfolio, quotes, edit, disabled }) {
-  const result = totals([portfolio], quotes);
+export default function PortfolioCard({ portfolio, originalPortfolio = portfolio, quotes, edit, disabled }) {
+  const result = totals([originalPortfolio], quotes);
   return <View style={s.card}>
     <View style={s.between}>
       <View style={s.grow}>
         <Text style={s.label}>{portfolio.broker || 'INVESTMENT PORTFOLIO'}</Text>
         <Text style={s.heading}>{portfolio.name}</Text>
       </View>
-      <Button title="Edit" secondary disabled={disabled} onPress={() => edit({ kind: 'portfolio', portfolio })} />
+      <Button title="Edit" secondary disabled={disabled} onPress={() => edit({ kind: 'portfolio', portfolio: originalPortfolio })} />
     </View>
     <View style={s.inset}>
       <Text style={s.label}>PORTFOLIO VALUE · PKR</Text>
@@ -24,8 +24,8 @@ export default function PortfolioCard({ portfolio, quotes, edit, disabled }) {
     </View>
     {portfolio.goal ? <Text style={s.muted}>{portfolio.goal}</Text> : null}
     {portfolio.holdings.map((holding) => <HoldingRow key={holding.id} holding={holding} quotes={quotes}
-      disabled={disabled} onPress={() => edit({ kind: 'holding', portfolio, holding })} />)}
+      disabled={disabled} onPress={() => edit({ kind: 'holding', portfolio: originalPortfolio, holding })} />)}
     {!portfolio.holdings.length && <Text style={s.muted}>Add your first stock to track prices and returns.</Text>}
-    <Button title="+ Add stock" secondary disabled={disabled} onPress={() => edit({ kind: 'holding', portfolio })} />
+    <Button title="+ Add stock" secondary disabled={disabled} onPress={() => edit({ kind: 'holding', portfolio: originalPortfolio })} />
   </View>;
 }

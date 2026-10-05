@@ -26,7 +26,6 @@ import {
   List,
   LogOut,
   Moon,
-  Package,
   Plus,
   Receipt,
   RefreshCcw,
@@ -47,6 +46,16 @@ import {
   X,
   Zap,
 } from '@sketchyicons/react';
+
+function CementBag({ size = 20, ...props }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M6 3h12v4l1 3v10a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V10l1-3Z" />
+      <path d="M6 6h12M6 3l2 3m10-3-2 3M5 18h14M5 10l2 2m12-2-2 2" />
+      <path d="M14 11a3 3 0 1 0 0 5" />
+    </svg>
+  );
+}
 
 const ICONS = {
   overview: ChartPie,
@@ -93,7 +102,7 @@ const ICONS = {
   electricity: Zap,
   chemicals: FlaskConical,
   waving: WavesHorizontal,
-  cement: Package,
+  cement: CementBag,
   banks: Landmark,
   merchantAccounts: Store,
   creditCard: CreditCard,

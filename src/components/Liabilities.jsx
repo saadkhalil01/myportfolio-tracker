@@ -1,19 +1,25 @@
+import { useState } from 'react';
 import { fmt, uid } from '../storage.js';
 import MoneyInput from './MoneyInput.jsx';
 import AppIcon from './AppIcon.jsx';
+import { ChartCard } from './ChartsPanel.jsx';
 
 export default function Liabilities({ liabilities, onChange }) {
+  const [chartStyle, setChartStyle] = useState('donut');
   const total = liabilities.reduce((s, l) => s + Number(l.amount || 0), 0);
   const sortedLiabilities = [...liabilities].sort(
     (a, b) => Number(b.amount || 0) - Number(a.amount || 0)
   );
+  const chartData = sortedLiabilities
+    .filter((liability) => Number(liability.amount) > 0)
+    .map((liability) => ({ id: liability.id, name: liability.name || 'Unnamed liability', value: Number(liability.amount) }));
 
   const update = (id, field, value) => {
     onChange(liabilities.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   };
 
   return (
-    <div className="card liabilities-card">
+    <section className="card liabilities-card">
       <div className="card-header">
         <div>
           <h2>Liabilities</h2>
@@ -27,6 +33,16 @@ export default function Liabilities({ liabilities, onChange }) {
         </button>
       </div>
 
+      <div className="liabilities-layout">
+    <ChartCard
+      title="Liabilities breakdown"
+      chartId="liabilities"
+      data={chartData}
+      style={chartStyle}
+      onStyleChange={setChartStyle}
+      className="liabilities-chart"
+    />
+      <div className="liabilities-details">
       {liabilities.length === 0 ? (
         <p className="empty-note">No liabilities yet — use + Add to create one.</p>
       ) : (
@@ -63,5 +79,7 @@ export default function Liabilities({ liabilities, onChange }) {
         </>
       )}
     </div>
+    </div>
+    </section>
   );
 }

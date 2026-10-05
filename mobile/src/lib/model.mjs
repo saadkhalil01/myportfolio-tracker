@@ -1,4 +1,5 @@
 import { createEmptyData, hydrateData, portfolioInvested, stocksInsightsMarketValue, assetTotals, isStocksCategory, normalizeHistory, syncValuationHistory } from '../../../src/storage.js';
+import { normalizeUpcomingDividend } from '../../../src/stockDividends.js';
 import { normalizeSymbol } from '../../../src/psxLogos.js';
 
 export { normalizeSymbol };
@@ -46,7 +47,16 @@ function amount(value, label, positive = false) {
 export function holdingInput(form) {
   const name = normalizeSymbol(form.name);
   if (name.length < 2 || name.length > 20) throw new Error('Enter a valid PSX symbol, for example EFERT.');
-  return { name, shares: amount(form.shares, 'Shares', true), avgBuy: amount(form.avgBuy, 'Average buy price') };
+  const values = { name, shares: amount(form.shares, 'Shares', true), avgBuy: amount(form.avgBuy, 'Average buy price') };
+  if (form.upcomingDividend !== undefined) {
+    const dividend = form.upcomingDividend;
+    const normalized = normalizeUpcomingDividend(dividend);
+    if (dividend.paymentDate && !normalized.paymentDate) throw new Error('Enter a valid dividend date as YYYY-MM-DD.');
+    const perShare = amount(dividend.perShare || '0', 'Dividend per share');
+    if (perShare > 0 && !normalized.paymentDate) throw new Error('Enter the dividend payment date.');
+    values.upcomingDividend = { ...normalized, perShare };
+  }
+  return values;
 }
 
 export function portfolioInput(form) {

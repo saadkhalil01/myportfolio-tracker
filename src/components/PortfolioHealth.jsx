@@ -5,6 +5,13 @@ import { isSavingsInvestment } from '../investmentClassification.js';
 
 const clamp = (value) => Math.min(100, Math.max(0, value));
 
+function healthColor(score) {
+  if (score <= 25) return '#dc2626';
+  if (score <= 50) return '#f97316';
+  if (score <= 75) return '#eab308';
+  return '#16a34a';
+}
+
 function healthLabel(score) {
   if (score >= 80) return { label: 'Excellent', tone: 'excellent' };
   if (score >= 65) return { label: 'Good', tone: 'good' };
@@ -125,7 +132,7 @@ export default function PortfolioHealth({ categories, totals, liabilitiesTotal }
           Help me improve
         </button>
       </div>
-      <section className={`card portfolio-health health-${status.tone}`}>
+      <section className={`card portfolio-health health-${status.tone}`} style={{ '--health-color': healthColor(score) }}>
       <div className="health-summary">
         <div
           className="health-gauge"
@@ -150,6 +157,7 @@ export default function PortfolioHealth({ categories, totals, liabilitiesTotal }
           <div
             className={`health-factor${factor.score >= 99.5 ? ' health-factor-complete' : ''}`}
             key={factor.name}
+            style={{ '--health-color': healthColor(factor.score) }}
           >
             <div className="health-factor-head">
               <span>
