@@ -43,7 +43,7 @@ function DividendCard({ entry }) {
     day: 'numeric', month: 'short', year: 'numeric',
   });
   return (
-    <article style={{ backgroundColor: 'white' }} className="dividend-summary"
+    <article className="dividend-summary"
       style={{ '--dividend-color': stockColor(entry.holding) }}>
       <HoldingIdentity holding={entry.holding} portfolio={entry.portfolio} />
       <time dateTime={entry.paymentDate}>{date}</time>

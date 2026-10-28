@@ -3,11 +3,19 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // Local UI testing uses the deployed API; no local backend is started.
+  server: {
+    host: '127.0.0.1',
+    proxy: {
+      '/.netlify/functions': { target: 'https://myportfoliopsx.netlify.app', changeOrigin: true },
+      '/api': { target: 'https://myportfoliopsx.netlify.app', changeOrigin: true },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'favicon.png'],
+      includeAssets: ['apple-touch-icon.png', 'favicon.png', 'app-icon.svg'],
       manifest: {
         name: 'MyPortfolio',
         short_name: 'MyPortfolio',
@@ -20,17 +28,17 @@ export default defineConfig({
         scope: '/',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'pwa-192x192.png?v=blue-arrow',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'pwa-512x512.png?v=blue-arrow',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'maskable-512x512.png',
+            src: 'maskable-512x512.png?v=blue-arrow',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',

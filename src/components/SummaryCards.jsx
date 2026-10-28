@@ -3,6 +3,7 @@ import { fmt, fmtPct, numberInputValue } from '../storage.js';
 export default function SummaryCards({ data, totals, onChange }) {
   const { invested, currentValue, profit, changePct } = totals;
   const gainClass = profit >= 0 ? 'positive' : 'negative';
+  const actualChange = profit + Number(data.dividendReinvested || 0);
   const yieldOnCost = invested > 0 ? (data.dividendReinvested / invested) * 100 : 0;
 
   return (
@@ -21,7 +22,12 @@ export default function SummaryCards({ data, totals, onChange }) {
           {profit >= 0 ? '+' : ''}
           {fmt(profit)}
         </span>
-        <span className={`stat-sub ${gainClass}`}>{fmtPct(changePct)}</span>
+        <span className={`stat-sub ${gainClass}`}>
+          {fmtPct(changePct)}{' '}
+          <span className={actualChange >= 0 ? 'positive' : 'negative'}>
+            (Actual {actualChange >= 0 ? 'gain' : 'loss'}: {actualChange >= 0 ? '+' : ''}{fmt(actualChange)})
+          </span>
+        </span>
       </div>
       <div className="card stat">
         <span className="stat-label">Dividend Reinvested</span>

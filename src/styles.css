@@ -2573,7 +2573,7 @@ input[type='number'] {
 }
 
 .range-value {
-  font-size: 16px !important;
+  font-variant-numeric: tabular-nums;
 }
 
 .history-editor {
@@ -3177,3 +3177,28 @@ input[type='number'] {
 .targets-table .buy-rule .cell-input {
   width: 64px;
 }
+
+.payoff-calculator { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.3fr); gap: 24px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); align-items: start; }
+.payoff-controls { min-width: 0; }
+.payoff-calculator h3 { margin: 0 0 12px; font-size: 16px; }
+.payoff-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0 0 12px; }
+.payoff-inputs label { display: grid; gap: 5px; color: var(--text-secondary); font-size: 12px; }
+.payoff-inputs .cell-input { width: 100%; min-width: 0; max-width: none; box-sizing: border-box; min-height: 36px; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); text-align: left; font-size: 13px; }
+.payoff-summary { display: flex; flex-wrap: wrap; gap: 10px 18px; padding: 12px; background: var(--accent-soft); border-radius: 8px; font-size: 12px; }
+.payoff-summary span { display: grid; gap: 4px; }
+.payoff-note { margin: 10px 0 0; font-size: 11px; }
+.payoff-months { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 320px; overflow-y: auto; min-width: 0; padding-top: 8px; }
+.payoff-month { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 5px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--accent-soft); font-size: 12px; }
+.payoff-month > span { color: var(--text-secondary); }
+.payoff-month strong { font-size: 13px; }
+.payoff-month small { font-size: 11px; }
+.payoff-month .payoff-badge { position: absolute; top: 3px; right: 3px; display: inline-flex; align-items: center; margin: 0; padding: 1px 3px; border: 3px double currentColor; border-radius: 2px; background: #fff5f5; color: #c62828; font-family: Georgia, serif; font-size: 6px; font-weight: 900; line-height: 1.1; letter-spacing: .4px; text-transform: uppercase; white-space: nowrap; transform: none; pointer-events: none; }
+.payoff-month.is-final { background: #ddf7ed; border-color: #0c7857; color: #075d43; }
+.payoff-month.is-final > span { color: inherit; }
+@media (max-width: 700px) {
+  .payoff-calculator { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+
+.payoff-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.payoff-heading h3 { margin: 0; }
+.payoff-heading .btn { padding: 4px 10px; min-height: 30px; font-size: 12px; }

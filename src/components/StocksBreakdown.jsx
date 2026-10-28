@@ -281,7 +281,7 @@ export default function StocksBreakdown({
         </div>
       </div>
 
-      <div className="insight-stats">
+      <div className="insight-stats stocks-insight-stats">
         <div className="insight-stat">
           <span className="insight-stat-icon"><AppIcon name="portfolios" size={29} weight="fill" /></span>
           <div className="insight-stat-copy">

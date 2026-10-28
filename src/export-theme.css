@@ -1,0 +1,226 @@
+/* Export Helping Hands visual system, shared across the local portfolio UI. */
+:root, [data-theme='light'] {
+  --bg: #fcfcf9; --bg-accent: #edf0ff; --surface: #fff; --surface-muted: #f5f6fc;
+  --text: #17213b; --text-secondary: #47516a; --text-muted: #687188;
+  --border: #dce0e9; --border-strong: #b8bfd0; --accent: #244bea; --accent-soft: #edf0ff;
+  --radius: 0px; --shadow: 4px 4px 0 #e4e8f7; --chart-grid: #e1e4ec;
+  --portfolio-icon-bg: #edf0ff; --portfolio-cash-bg: #edf0ff;
+  --portfolio-cash-border: #ccd5fc; --portfolio-cash-label: #244bea;
+}
+[data-theme='dark'] {
+  --bg: #11182a; --surface: #18223a; --surface-muted: #1e2a45;
+  --text: #f5f6fc; --text-secondary: #ced5e7; --text-muted: #a4afc8;
+  --border: #34415c; --border-strong: #51607b; --accent: #8299ff; --accent-soft: #23345e;
+  --chart-grid: #34415c; --portfolio-icon-bg: #23345e;
+  --portfolio-cash-bg: #23345e; --portfolio-cash-border: #51607b; --portfolio-cash-label: #b4c2ff;
+}
+body, [data-theme='light'] body {
+  font-family: 'DM Sans', Arial, sans-serif;
+  background-color: var(--bg);
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px; color: var(--text);
+}
+.app { gap: 22px; }
+.topbar, [data-theme='light'] .topbar { background: var(--bg); border-bottom: 1px solid var(--border-strong); min-height: 84px; padding: 12px 28px; }
+.export-brand-mark { display: grid; place-items: center; width: 42px; height: 44px; background: #244bea; color: #fff; font-size: 38px; line-height: 1; box-shadow: 3px 3px 0 #bfcaff; }
+.brand-wordmark, [data-theme='light'] .brand-wordmark { font-family: 'Barlow Condensed', Impact, sans-serif; font-size: 30px; color: var(--text); letter-spacing: -.03em; }
+.brand-wordmark-my { color: var(--accent); }
+
+@media (max-width: 720px) {
+  .insights-card .stocks-insight-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .insights-card .stocks-insight-stats .insight-stat-primary {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .insights-card .stocks-insight-stats .insight-stat:not(.insight-stat-primary) {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .stocks-insight-stats .insight-stat:not(.insight-stat-primary) .insight-stat-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .stocks-insight-stats .insight-stat:not(.insight-stat-primary) .insight-stat-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .stocks-insight-stats .insight-stat-copy {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+.tagline { color: var(--text-muted); font-size: 10px; letter-spacing: .04em; }
+.navbar { gap: 14px; }
+.nav-link, [data-theme='light'] .nav-link { color: var(--text-secondary); font-weight: 600; }
+.nav-link.active, .nav-link:hover, [data-theme='light'] .nav-link.active { color: var(--accent); }
+.nav-link.active::after, [data-theme='light'] .nav-link.active::after { background: var(--accent); box-shadow: none; height: 3px; border-radius: 0; }
+.page { padding: 0 24px 32px; }
+.page-stack { gap: 22px; }
+.card, .portfolio-card, [data-theme='light'] .card, [data-theme='light'] .insights-card .portfolio-card, .insights-card .nested-chart-card.card { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 0; box-shadow: var(--shadow); }
+.insights-card, [data-theme='light'] .insights-card { background: transparent; border: 0; box-shadow: none; }
+.card h2, .insights-card > .card-header h2 { font-family: 'Barlow Condensed', Impact, sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -.015em; }
+.insights-card > .card-header h2 i { background: var(--accent); }
+.insights-card .card-note { color: var(--text-muted); }
+.insights-card .insight-stat, [data-theme='light'] .insights-card .insight-stat { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 0; box-shadow: var(--shadow); padding: 20px; }
+.insight-stat .stat-label, .insight-stat small { color: var(--text-muted); }
+.insight-stat .stat-value, .insight-stat:not(.insight-stat-primary) .stat-value { color: var(--text); }
+.insight-stat-icon, [data-theme='light'] .insight-stat-icon { background: var(--accent-soft); color: var(--accent); border-radius: 0; }
+.insights-card .insight-stat-primary, [data-theme='light'] .insights-card .insight-stat-primary, .stat-primary { background: #244bea; color: #fff; border-color: #244bea; box-shadow: 5px 5px 0 #bfcaff; }
+.insights-card .insight-stat-primary .stat-value, [data-theme='light'] .insight-stat-primary .stat-value, .stat-primary .stat-value { color: #fff; }
+.insight-stat-primary .stat-label, [data-theme='light'] .insight-stat-primary .stat-label, .insight-stat-primary small { color: #e0e6ff; }
+.insight-stat-primary .insight-stat-icon { background: #ffffff22; color: #fff; }
+.btn, .btn-icon, .btn-google, .cell-input, .portfolio-editor input, .portfolio-editor select, .portfolio-editor-cash, .portfolio-editor-icon, .table-wrap, .dividend-summary, .section-totals > div { border-radius: 0; }
+.btn-refresh, [data-theme='light'] .btn-refresh { background: var(--surface); color: var(--text); border-color: var(--border-strong); border-radius: 0; }
+.btn.btn-add, .btn-add-portfolio, [data-theme='light'] .btn-add-portfolio, .btn-google { background: #244bea; color: #fff; border: 1px solid #244bea; border-radius: 0; box-shadow: 3px 3px 0 #bfcaff; }
+.btn.btn-add:hover, .btn-add-portfolio:hover, [data-theme='light'] .btn-add-portfolio:hover, .btn-google:hover { background: #1c3bc0; color: #fff; }
+.header-menu-panel { background: var(--surface); color: var(--text); border-radius: 0; }
+.header-menu-trigger, .auth-user { color: var(--text); }
+.portfolio-name, .portfolio-cash-row .cell-input.num.money-input { color: var(--text); }
+.portfolio-summary-line, .insights-card .portfolio-summary-line { color: var(--text-secondary); border-color: var(--border); }
+.insights-card .holdings-table, .insights-card .holdings-table th:first-child, .insights-card .holdings-table td:first-child, .insights-card .portfolio-card .table-wrap { background: var(--surface); border-color: var(--border); }
+.data-table th, .insights-card .holdings-table thead th:first-child { background: var(--surface-muted); color: var(--text-muted); }
+.data-table td, .cell-input { color: var(--text); border-color: var(--border); }
+.market-art { display: none; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (max-width: 1050px) { .topbar { padding: 12px 18px; } }
+@media (max-width: 720px) { .app { gap: 16px; } .page { padding: 0 12px 24px; } .topbar, [data-theme='light'] .topbar { padding: 10px 14px; } .export-brand-mark { width: 32px; height: 36px; font-size: 29px; } .brand-wordmark { font-size: 26px; } }
+
+/* Monthly repayment schedule: clear dates, amounts, and remaining balances. */
+.payoff-months { grid-template-columns: repeat(auto-fill, minmax(min(120px, 100%), 1fr)); gap: 8px; padding: 2px 5px 6px 0; max-height: 380px; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+.payoff-month { padding: 0; gap: 0; border-radius: 0; background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: 2px 2px 0 var(--accent-soft); }
+.payoff-month-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 9px 0; }
+.payoff-month-top time { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.payoff-month-number { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-muted); background: var(--surface-muted); padding: 3px 5px; }
+.payoff-month-amount { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; padding: 7px 9px 9px; }
+.payoff-month-amount > span { color: var(--text-muted); font-size: 10px; font-weight: 600; }
+.payoff-month-amount strong { font-size: 18px; line-height: 1.1; letter-spacing: -.05em; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.payoff-month-bottom { margin-top: auto; min-height: 27px; padding: 6px 9px; border-top: 1px solid var(--border); background: var(--surface-muted); }
+.payoff-month-bottom small { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; font-size: 10px; color: var(--text-muted); }
+.payoff-month-bottom b { font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.payoff-month.is-final { background: #244bea; border-color: #244bea; color: #fff; box-shadow: 3px 3px 0 #bdc9ff; }
+.payoff-month.is-final time, .payoff-month.is-final .payoff-month-amount > span { color: #e0e6ff; }
+.payoff-month.is-final .payoff-month-number { color: #fff; background: #ffffff22; }
+.payoff-month.is-final .payoff-month-bottom { background: #1d3fd0; border-color: #ffffff33; }
+.payoff-month .payoff-badge { position: static; display: block; padding: 0; margin: 0; border: 0; background: transparent; color: #fff; font-family: inherit; font-size: 10px; font-weight: 600; line-height: 1.4; letter-spacing: .02em; text-transform: none; white-space: normal; }
+@media (max-width: 400px) { .payoff-months { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .payoff-month-amount strong { font-size: 17px; } }
+
+/* Complete theme coverage for every tab, shared control, and popup. */
+.insight-stat { background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: 0; box-shadow: var(--shadow); }
+.insight-stat-primary { background: #244bea; border-color: #244bea; color: #fff; }
+.insight-stat-primary .stat-value, [data-theme='light'] .insight-stat-primary .stat-value { color: #fff; }
+.stat-primary .stat-label, .stat-primary .stat-sub,
+.insight-stat-primary .stat-label, [data-theme='light'] .insight-stat-primary .stat-label,
+.insight-stat-primary .stat-sub, [data-theme='light'] .insight-stat-primary small,
+[data-theme='light'] .insights-card .insight-stat-primary .stat-label { color: #e0e6ff; }
+.stat-input, .chart-card select, [data-theme='light'] .chart-card select,
+.portfolio-meta-row .cell-input, .portfolio-card-head > .cell-input { border-radius: 0; border-color: var(--border); background-color: var(--surface-muted); color: var(--text); }
+.holdings-table, .holdings-table th:first-child, .holdings-table td:first-child,
+.portfolio-card .table-wrap { background: var(--surface); border-color: var(--border); }
+.holdings-table thead th:first-child { background: var(--surface-muted); }
+.data-table tbody tr:hover td, .cell-input:focus { background: var(--surface-muted); }
+.data-table td.positive, .positive { color: var(--green) !important; }
+.data-table td.negative, .negative { color: var(--red) !important; }
+[data-theme='dark'] { --green: #6de0ad; --green-soft: #153f36; --red: #ff9696; --red-soft: #492635; }
+.insight-stat-primary .positive, .insight-stat-primary .negative { color: #fff !important; }
+.btn-primary { background: #244bea; color: #fff; border: 1px solid #244bea; box-shadow: 3px 3px 0 #bfcaff; }
+.btn-primary:hover { background: #1c3bc0; color: #fff; }
+.btn-icon { color: var(--text-secondary); }
+.btn-icon:hover, .btn-ghost:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--border-strong); }
+.item-list li { border-color: var(--border); }
+.section-totals .section-total-primary { background: var(--accent-soft); border-color: var(--border-strong); }
+.section-total-primary strong { color: var(--accent); }
+.payoff-summary, .payoff-inputs .cell-input, .modal, .category-menu,
+.category-option, .header-menu-panel, .health-help-panel,
+.savings-modal-total, .savings-modal-list, .modal-savings-option,
+.health-factor-complete { border-radius: 0; }
+.modal, .category-menu, .header-menu-panel, .health-help-panel { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+.header-menu-panel button, .category-option { color: var(--text); }
+.header-menu-panel button:hover, .category-option:hover { background: var(--accent-soft); color: var(--accent); }
+.portfolio-cash-row, .insights-card .portfolio-cash-row { background: var(--surface-muted); border-color: var(--border); border-radius: 0; }
+.recharts-cartesian-grid line { stroke: var(--chart-grid); }
+.recharts-text { fill: var(--text-muted); }
+.recharts-default-tooltip { background: var(--surface) !important; border-color: var(--border-strong) !important; color: var(--text) !important; border-radius: 0; }
+.recharts-legend-item-text { color: var(--text-secondary) !important; }
+.recharts-pie-sector path { stroke: var(--surface); }
+.progress-track { background: var(--border); }
+.progress-fill { background: var(--accent); }
+.add-holding { color: var(--accent); }
+.dividend-summary { background: var(--surface); }
+@media (max-width: 720px) {
+  .navbar, [data-theme='light'] .navbar { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 0; box-shadow: 0 -3px 18px #17213b12; backdrop-filter: none; }
+  .navbar .nav-link, [data-theme='light'] .navbar .nav-link { color: var(--text-secondary); border-radius: 0; }
+  .navbar .nav-link.active, .navbar .nav-link.active:hover,
+  [data-theme='light'] .navbar .nav-link.active { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
+}
+
+/* Keep royal-blue emphasis above the legacy card and responsive selectors. */
+.app .summary-grid .card.stat-primary,
+.app .insight-stats .insight-stat.insight-stat-primary,
+.app .section-totals .section-total-primary {
+  background: #244bea;
+  border-color: #244bea;
+  color: #fff;
+  box-shadow: 4px 4px 0 #bfcaff;
+}
+.app .summary-grid .stat-primary .stat-value,
+.app .summary-grid .stat-primary .stat-label,
+.app .insight-stats .insight-stat-primary .stat-value,
+.app .insight-stats .insight-stat-primary .stat-label,
+.app .insight-stats .insight-stat-primary .stat-sub,
+.app .section-totals .section-total-primary strong,
+.app .section-totals .section-total-primary .stat-label { color: #fff; }
+.app .insight-stats .insight-stat-primary .insight-stat-icon { background: #ffffff22; color: #fff; }
+.app .btn.btn-add, .app .btn.btn-primary, .app .btn-google {
+  background: #244bea;
+  border-color: #244bea;
+  color: #fff;
+}
+.app .btn.btn-add:hover, .app .btn.btn-primary:hover, .app .btn-google:hover { background: #1c3bc0; color: #fff; }
+
+/* Active navigation uses the same blue box as primary actions. */
+.app .navbar { align-items: center; gap: 5px; }
+.app .navbar .nav-link { min-height: 38px; padding: 9px 8px; gap: 5px; border: 1px solid transparent; }
+.app .navbar .nav-link.active,
+.app .navbar .nav-link.active:hover {
+  background: #244bea;
+  border-color: #244bea;
+  color: #fff;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 #bfcaff;
+}
+.app .navbar .nav-link.active::after { display: none; }
+@media (max-width: 720px) {
+  .app .navbar .nav-link { min-height: 50px; padding: 6px 2px; }
+  .app .navbar .nav-link.active,
+  .app .navbar .nav-link.active:hover { background: #244bea; color: #fff; box-shadow: 2px 2px 0 #bfcaff; }
+}
+
+/* Square category color swatches match the box-shaped theme. */
+.category-color-picker-wrap, .category-option-dot,
+.category-color-picker::-webkit-color-swatch-wrapper,
+.category-color-picker::-webkit-color-swatch { border-radius: 0; }
+.category-color-picker::-moz-color-swatch { border-radius: 0; }
+
+/* Match the growth range figures to the other summary values. */
+.app .growth-stats .insight-stat .stat-value { font-size: clamp(20px, 1.8vw, 26px); line-height: 1.2; font-weight: 700; letter-spacing: -.025em; }
+.app .growth-stats .range-value { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
+.app .growth-stats .range-value > span:not(.range-separator) { white-space: nowrap; }
+.app .growth-stats .range-value .range-separator { color: var(--text-muted); font-size: .75em; font-weight: 400; }
+
+/* Square ends for chart lines, horizontal tracks, and progress bars. */
+.recharts-line-curve, .recharts-area-curve { stroke-linejoin: miter; stroke-linecap: butt; }
+.app .progress-track, .app .progress-fill,
+.app .health-factor-track, .app .health-factor-track span,
+.app .coverage-track, .app .coverage-gradient { border-radius: 0; }
+
+.liabilities-chart > .chart-header { padding-left: 16px; }

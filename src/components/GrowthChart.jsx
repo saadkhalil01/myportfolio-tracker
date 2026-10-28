@@ -15,7 +15,7 @@ import { fmt, fmtPct, uid, growthStats, todayISO } from '../storage.js';
 const tooltipStyle = {
   background: 'var(--surface)',
   border: '1px solid var(--border)',
-  borderRadius: 6,
+  borderRadius: 0,
   color: 'var(--text)',
   boxShadow: 'var(--shadow)',
   fontFamily: "'Google Sans', system-ui, sans-serif",
@@ -70,7 +70,7 @@ export default function GrowthChart({ history, startDate, currentValue, invested
 
   const stats = useMemo(() => growthStats(series), [series]);
 
-  const stroke = stats.up ? '#0d7a4f' : '#b42318';
+  const stroke = '#244bea';
   const fillId = 'growthFill';
 
   const addPoint = () => {
@@ -135,7 +135,9 @@ export default function GrowthChart({ history, startDate, currentValue, invested
         <div className="insight-stat">
           <span className="stat-label">Range</span>
           <span className="stat-value range-value">
-            {fmt(stats.low)} – {fmt(stats.high)}
+            <span>{fmt(stats.low)}</span>
+            <span className="range-separator" aria-hidden="true">–</span>
+            <span>{fmt(stats.high)}</span>
           </span>
         </div>
       </div>
@@ -178,7 +180,9 @@ export default function GrowthChart({ history, startDate, currentValue, invested
               ifOverflow="extendDomain"
             />
             <Area
-              type="natural"
+              type="linear"
+              strokeLinejoin="miter"
+              strokeLinecap="butt"
               dataKey="valuation"
               stroke={stroke}
               strokeWidth={2.5}

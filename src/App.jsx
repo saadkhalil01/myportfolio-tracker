@@ -44,13 +44,13 @@ const NAV_ITEMS = [
 ];
 
 const NAV_STORAGE_KEY = 'myportfolio-active-tab-v2';
-const THEME_STORAGE_KEY = 'myportfolio-theme';
+const THEME_STORAGE_KEY = 'myportfolio-export-theme';
 
 function loadTheme() {
   try {
-    return localStorage.getItem(THEME_STORAGE_KEY) === 'light' ? 'light' : 'dark';
+    return localStorage.getItem(THEME_STORAGE_KEY) === 'dark' ? 'dark' : 'light';
   } catch {
-    return 'dark';
+    return 'light';
   }
 }
 
@@ -355,6 +355,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
+          <span className="export-brand-mark" aria-hidden="true">↗</span>
           <div>
             <h1>
               <span className="brand-wordmark"><span className="brand-wordmark-my">my</span>portfolio</span>
@@ -461,6 +462,8 @@ export default function App() {
 
         {tab === 'liabilities' && (
           <Liabilities
+            payoffSettings={data.payoffSettings}
+            onPayoffChange={(payoffSettings) => setData((prev) => ({ ...prev, payoffSettings }))}
             liabilities={data.liabilities}
             onChange={(liabilities) => setData((prev) => ({ ...prev, liabilities }))}
           />

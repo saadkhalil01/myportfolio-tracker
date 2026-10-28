@@ -3,8 +3,9 @@ import { fmt, uid } from '../storage.js';
 import MoneyInput from './MoneyInput.jsx';
 import AppIcon from './AppIcon.jsx';
 import { ChartCard } from './ChartsPanel.jsx';
+import PayoffCalculator from './PayoffCalculator.jsx';
 
-export default function Liabilities({ liabilities, onChange }) {
+export default function Liabilities({ liabilities, onChange, payoffSettings, onPayoffChange }) {
   const [chartStyle, setChartStyle] = useState('donut');
   const total = liabilities.reduce((s, l) => s + Number(l.amount || 0), 0);
   const sortedLiabilities = [...liabilities].sort(
@@ -35,7 +36,7 @@ export default function Liabilities({ liabilities, onChange }) {
 
       <div className="liabilities-layout">
     <ChartCard
-      title="Liabilities breakdown"
+      title="Breakdown"
       chartId="liabilities"
       data={chartData}
       style={chartStyle}
@@ -80,6 +81,7 @@ export default function Liabilities({ liabilities, onChange }) {
       )}
     </div>
     </div>
+    <PayoffCalculator total={total} settings={payoffSettings} onSettingsChange={onPayoffChange} />
     </section>
   );
 }

@@ -42,7 +42,7 @@ const PALETTE = [
 const tooltipStyle = {
   background: 'var(--surface)',
   border: '1px solid var(--border)',
-  borderRadius: 6,
+  borderRadius: 0,
   color: 'var(--text)',
   boxShadow: '0 4px 12px rgba(26, 35, 50, 0.08)',
   fontFamily: "'Google Sans', system-ui, sans-serif",
@@ -249,7 +249,7 @@ function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend
           />
           <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
           {legend}
-          <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22} name="Value">
+          <Bar dataKey="value" radius={0} maxBarSize={22} name="Value">
             {colored.map((entry) => (
               <Cell key={entry.id || entry.name} fill={entry.color} />
             ))}
@@ -269,11 +269,13 @@ function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend
           <Tooltip content={<ChartTooltip />} />
           {legend}
           <Line
-            type="monotone"
+            type="linear"
+              strokeLinejoin="miter"
+              strokeLinecap="butt"
             dataKey="value"
-            stroke="#1a56db"
+            stroke="#244bea"
             strokeWidth={2.5}
-            dot={{ r: 4, fill: '#1a56db', strokeWidth: 0 }}
+            dot={{ r: 4, fill: '#244bea', strokeWidth: 0 }}
             activeDot={{ r: 5 }}
             name="Value"
           />
@@ -288,8 +290,8 @@ function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend
         <AreaChart data={colored} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1a56db" stopOpacity={0.28} />
-              <stop offset="100%" stopColor="#1a56db" stopOpacity={0.02} />
+              <stop offset="0%" stopColor="#244bea" stopOpacity={0.28} />
+              <stop offset="100%" stopColor="#244bea" stopOpacity={0.02} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke="var(--border)" vertical={false} />
@@ -298,9 +300,11 @@ function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend
           <Tooltip content={<ChartTooltip />} />
           {legend}
           <Area
-            type="monotone"
+            type="linear"
+              strokeLinejoin="miter"
+              strokeLinecap="butt"
             dataKey="value"
-            stroke="#1a56db"
+            stroke="#244bea"
             strokeWidth={2}
             fill={`url(#${gradientId})`}
             name="Value"
@@ -319,7 +323,7 @@ function FlexibleChart({ data, style, chartId, sideLegend = false, holdingLegend
         <YAxis tick={axisTick} axisLine={false} tickLine={false} width={64} tickFormatter={fmt} />
         <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(26, 35, 50, 0.04)' }} />
         {legend}
-        <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={48} name="Value">
+        <Bar dataKey="value" radius={0} maxBarSize={48} name="Value">
           {colored.map((entry) => (
             <Cell key={entry.id || entry.name} fill={entry.color} />
           ))}
@@ -414,7 +418,7 @@ export default function ChartsPanel({ categories, totals, liabilitiesTotal, char
         }
       />
       <ChartCard
-        title="Invested vs valuation"
+        title="Invested vs Valuation"
         chartId="comparison"
         data={comparison}
         style={styles.comparison}
